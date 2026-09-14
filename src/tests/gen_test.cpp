@@ -6,7 +6,7 @@
 
 namespace {
 constexpr int kStartValue = 1;
-constexpr int kFinalValue = 100;
+constexpr int kFinalValue = 300;
 
 void CreateTestsFile(size_t count, unsigned int seed = 0,
                      const std::string& file_name = "test.txt") {
