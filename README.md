@@ -1,6 +1,6 @@
 # Cache 
 This is C++ Vladimirov task. 
-Collaborator SergioFoma
+Collaborator SergioFoma.
 
 #### TODOs
 - Cache algos
