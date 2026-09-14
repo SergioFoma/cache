@@ -8,6 +8,7 @@
 
 #include <cache_algorithm/arc.hpp>
 #include <cache_algorithm/lfu_cache.hpp>
+#include <cache_algorithm/lirs_cache.hpp>
 #include <cache_algorithm/lru_cache.hpp>
 #include <cache_algorithm/two_queues.hpp>
 
@@ -1411,6 +1412,488 @@ TEST(ArcCacheTest, SixtyMixedAccessesAcrossCapacities) {
       EXPECT_EQ(cache.GetCacheMissCount(), expected_misses);
       EXPECT_EQ(loader_calls, expected_misses);
       EXPECT_EQ(cache.GetAccessCount(), i + 1);
+    }
+  }
+}
+
+// ============================================================================
+// === LIRS cache ===
+// ============================================================================
+TEST(LirsCacheTest, ConstructorInitializesCountersToZero) {
+  int loader_calls = 0;
+  cache::Lirs<int, int> cache(2, [&](const int& key) {
+    ++loader_calls;
+    return LoadPage(key);
+  });
+
+  EXPECT_EQ(loader_calls, 0);
+  EXPECT_EQ(cache.GetCacheMissCount(), 0);
+  EXPECT_EQ(cache.GetAccessCount(), 0);
+}
+
+TEST(LirsCacheTest, FirstLookupLoadsPage) {
+  int loader_calls = 0;
+  cache::Lirs<int, int> cache(2, [&](const int& key) {
+    ++loader_calls;
+    EXPECT_EQ(key, 7);
+    return LoadPage(key);
+  });
+
+  EXPECT_EQ(cache.LookUpUpdate(7), 70);
+  EXPECT_EQ(loader_calls, 1);
+  EXPECT_EQ(cache.GetCacheMissCount(), 1);
+  EXPECT_EQ(cache.GetAccessCount(), 1);
+}
+
+TEST(LirsCacheTest, RepeatedLookupDoesNotCallLoader) {
+  int loader_calls = 0;
+  cache::Lirs<int, int> cache(2, [&](const int& key) {
+    return LoadPage(key) * ++loader_calls;
+  });
+
+  EXPECT_EQ(cache.LookUpUpdate(7), 70);
+  for (int i = 0; i < 100; ++i) {
+    EXPECT_EQ(cache.LookUpUpdate(7), 70);
+  }
+  EXPECT_EQ(loader_calls, 1);
+  EXPECT_EQ(cache.GetCacheMissCount(), 1);
+  EXPECT_EQ(cache.GetAccessCount(), 101);
+}
+
+TEST(LirsCacheTest, InstancesHaveIndependentState) {
+  cache::Lirs<int, int> first(2, LoadPage);
+  cache::Lirs<int, int> second(2, [](const int& key) { return key * 100; });
+
+  EXPECT_EQ(first.LookUpUpdate(7), 70);
+  EXPECT_EQ(second.GetAccessCount(), 0);
+  EXPECT_EQ(second.GetCacheMissCount(), 0);
+  EXPECT_EQ(second.LookUpUpdate(7), 700);
+  EXPECT_EQ(first.LookUpUpdate(7), 70);
+  EXPECT_EQ(first.GetCacheMissCount(), 1);
+  EXPECT_EQ(first.GetAccessCount(), 2);
+  EXPECT_EQ(second.GetCacheMissCount(), 1);
+  EXPECT_EQ(second.GetAccessCount(), 1);
+}
+
+TEST(LirsCacheTest, WorkingSetFitsWithoutFurtherLoads) {
+  for (size_t capacity : {1, 2, 3, 16}) {
+    SCOPED_TRACE(capacity);
+    size_t loader_calls = 0;
+    auto loader = [&](const int& key) {
+      ++loader_calls;
+      return LoadPage(key);
+    };
+    cache::Lirs<int, int> cache(capacity, loader);
+    for (int round = 0; round < 10; ++round) {
+      for (size_t key = 0; key < capacity; ++key) {
+        EXPECT_EQ(cache.LookUpUpdate(static_cast<int>(key)),
+                  LoadPage(static_cast<int>(key)));
+      }
+    }
+    EXPECT_EQ(loader_calls, capacity);
+    EXPECT_EQ(cache.GetCacheMissCount(), capacity);
+    EXPECT_EQ(cache.GetAccessCount(), 10 * capacity);
+  }
+}
+
+TEST(LirsCacheTest, SupportsStringKeysAndValues) {
+  int loader_calls = 0;
+  cache::Lirs<std::string, std::string> cache(3, [&](const std::string& key) {
+    ++loader_calls;
+    return "value:" + key;
+  });
+  EXPECT_EQ(cache.LookUpUpdate(""), "value:");
+  EXPECT_EQ(cache.LookUpUpdate("hello"), "value:hello");
+  EXPECT_EQ(cache.LookUpUpdate("world"), "value:world");
+  EXPECT_EQ(cache.LookUpUpdate("world"), "value:world");
+  EXPECT_EQ(cache.LookUpUpdate("hello"), "value:hello");
+  EXPECT_EQ(cache.LookUpUpdate(""), "value:");
+  EXPECT_EQ(loader_calls, 3);
+  EXPECT_EQ(cache.GetCacheMissCount(), 3);
+  EXPECT_EQ(cache.GetAccessCount(), 6);
+}
+
+TEST(LirsCacheTest, LirPagesSurviveLongScan) {
+  int loader_calls = 0;
+  cache::Lirs<int, int> cache(4, [&](const int& key) {
+    ++loader_calls;
+    return LoadPage(key);
+  });
+  for (int key = 1; key <= 100; ++key) {
+    ASSERT_EQ(cache.LookUpUpdate(key), LoadPage(key));
+    ASSERT_EQ(cache.GetCacheMissCount(), static_cast<size_t>(key));
+  }
+  for (int key : {1, 2, 3, 100}) {
+    EXPECT_EQ(cache.LookUpUpdate(key), LoadPage(key));
+    EXPECT_EQ(cache.GetCacheMissCount(), 100);
+  }
+  EXPECT_EQ(loader_calls, 100);
+  EXPECT_EQ(cache.GetAccessCount(), 104);
+}
+
+// Expected versions and misses below were calculated with a separate simulation.
+TEST(LirsCacheTest, CapacityOneReloadsEvictedPageWithFreshValue) {
+  // A single resident slot must retain the most recently loaded page.
+  // Each row is {key, loaded value version, cumulative misses}.
+  const std::array<ExpectedAccess, 6> accesses = {{
+      {1, 1, 1}, {1, 1, 1}, {2, 2, 2}, {2, 2, 2},
+      {1, 3, 3}, {1, 3, 3},
+  }};
+  int loader_calls = 0;
+  auto loader = [&](const int&) { return ++loader_calls; };
+  cache::Lirs<int, int> cache(1, loader);
+
+  for (size_t i = 0; i < accesses.size(); ++i) {
+    const auto& access = accesses[i];
+    SCOPED_TRACE(testing::Message() << "access=" << i + 1
+                                  << ", key=" << access.key);
+    ASSERT_EQ(cache.LookUpUpdate(access.key), access.value);
+    ASSERT_EQ(cache.GetCacheMissCount(), access.misses);
+    ASSERT_EQ(loader_calls, access.misses);
+    ASSERT_EQ(cache.GetAccessCount(), i + 1);
+  }
+}
+
+TEST(LirsCacheTest, NewPageEvictsOldestResidentHir) {
+  // Pages 1 through 3 are LIR; loading 5 evicts HIR page 4.
+  // Each row is {key, loaded value version, cumulative misses}.
+  const std::array<ExpectedAccess, 10> accesses = {{
+      {1, 1, 1}, {2, 2, 2}, {3, 3, 3}, {4, 4, 4},
+      {5, 5, 5}, {1, 1, 5}, {2, 2, 5}, {3, 3, 5},
+      {5, 5, 5}, {4, 6, 6},
+  }};
+  int loader_calls = 0;
+  auto loader = [&](const int&) { return ++loader_calls; };
+  cache::Lirs<int, int> cache(4, loader);
+
+  for (size_t i = 0; i < accesses.size(); ++i) {
+    const auto& access = accesses[i];
+    SCOPED_TRACE(testing::Message() << "access=" << i + 1
+                                  << ", key=" << access.key);
+    ASSERT_EQ(cache.LookUpUpdate(access.key), access.value);
+    ASSERT_EQ(cache.GetCacheMissCount(), access.misses);
+    ASSERT_EQ(loader_calls, access.misses);
+    ASSERT_EQ(cache.GetAccessCount(), i + 1);
+  }
+}
+
+TEST(LirsCacheTest, ResidentHirInStackIsPromotedWithoutReload) {
+  // Promoting 4 demotes bottom LIR page 1, which is evicted by 5.
+  // Each row is {key, loaded value version, cumulative misses}.
+  const std::array<ExpectedAccess, 9> accesses = {{
+      {1, 1, 1}, {2, 2, 2}, {3, 3, 3}, {4, 4, 4},
+      {4, 4, 4}, {5, 5, 5}, {4, 4, 5}, {2, 2, 5},
+      {3, 3, 5},
+  }};
+  int loader_calls = 0;
+  auto loader = [&](const int&) { return ++loader_calls; };
+  cache::Lirs<int, int> cache(4, loader);
+
+  for (size_t i = 0; i < accesses.size(); ++i) {
+    const auto& access = accesses[i];
+    SCOPED_TRACE(testing::Message() << "access=" << i + 1
+                                  << ", key=" << access.key);
+    ASSERT_EQ(cache.LookUpUpdate(access.key), access.value);
+    ASSERT_EQ(cache.GetCacheMissCount(), access.misses);
+    ASSERT_EQ(loader_calls, access.misses);
+    ASSERT_EQ(cache.GetAccessCount(), i + 1);
+  }
+}
+
+TEST(LirsCacheTest, NonResidentHitReloadsFreshValueAndPromotes) {
+  // Ghost page 4 reloads as LIR and survives the next HIR replacement.
+  // Each row is {key, loaded value version, cumulative misses}.
+  const std::array<ExpectedAccess, 10> accesses = {{
+      {1, 1, 1}, {2, 2, 2}, {3, 3, 3}, {4, 4, 4},
+      {5, 5, 5}, {4, 6, 6}, {6, 7, 7}, {4, 6, 7},
+      {2, 2, 7}, {3, 3, 7},
+  }};
+  int loader_calls = 0;
+  auto loader = [&](const int&) { return ++loader_calls; };
+  cache::Lirs<int, int> cache(4, loader);
+
+  for (size_t i = 0; i < accesses.size(); ++i) {
+    const auto& access = accesses[i];
+    SCOPED_TRACE(testing::Message() << "access=" << i + 1
+                                  << ", key=" << access.key);
+    ASSERT_EQ(cache.LookUpUpdate(access.key), access.value);
+    ASSERT_EQ(cache.GetCacheMissCount(), access.misses);
+    ASSERT_EQ(loader_calls, access.misses);
+    ASSERT_EQ(cache.GetAccessCount(), i + 1);
+  }
+}
+
+TEST(LirsCacheTest, LirHitChangesWhichPageIsDemoted) {
+  // Refreshing LIR page 1 makes page 2 the next demotion victim.
+  // Each row is {key, loaded value version, cumulative misses}.
+  const std::array<ExpectedAccess, 10> accesses = {{
+      {1, 1, 1}, {2, 2, 2}, {3, 3, 3}, {4, 4, 4},
+      {1, 1, 4}, {4, 4, 4}, {5, 5, 5}, {1, 1, 5},
+      {3, 3, 5}, {4, 4, 5},
+  }};
+  int loader_calls = 0;
+  auto loader = [&](const int&) { return ++loader_calls; };
+  cache::Lirs<int, int> cache(4, loader);
+
+  for (size_t i = 0; i < accesses.size(); ++i) {
+    const auto& access = accesses[i];
+    SCOPED_TRACE(testing::Message() << "access=" << i + 1
+                                  << ", key=" << access.key);
+    ASSERT_EQ(cache.LookUpUpdate(access.key), access.value);
+    ASSERT_EQ(cache.GetCacheMissCount(), access.misses);
+    ASSERT_EQ(loader_calls, access.misses);
+    ASSERT_EQ(cache.GetAccessCount(), i + 1);
+  }
+}
+
+TEST(LirsCacheTest, PrunedResidentHirNeedsTwoHitsToPromote) {
+  // Demoted 1 is outside the stack; its first hit must leave it HIR.
+  // Each row is {key, loaded value version, cumulative misses}.
+  const std::array<ExpectedAccess, 10> accesses = {{
+      {1, 1, 1}, {2, 2, 2}, {3, 3, 3}, {4, 4, 4},
+      {4, 4, 4}, {1, 1, 4}, {5, 5, 5}, {4, 4, 5},
+      {2, 2, 5}, {3, 3, 5},
+  }};
+  int loader_calls = 0;
+  auto loader = [&](const int&) { return ++loader_calls; };
+  cache::Lirs<int, int> cache(4, loader);
+
+  for (size_t i = 0; i < accesses.size(); ++i) {
+    const auto& access = accesses[i];
+    SCOPED_TRACE(testing::Message() << "access=" << i + 1
+                                  << ", key=" << access.key);
+    ASSERT_EQ(cache.LookUpUpdate(access.key), access.value);
+    ASSERT_EQ(cache.GetCacheMissCount(), access.misses);
+    ASSERT_EQ(loader_calls, access.misses);
+    ASSERT_EQ(cache.GetAccessCount(), i + 1);
+  }
+}
+
+TEST(LirsCacheTest, SecondHitPromotesPreviouslyPrunedHir) {
+  // A second hit to demoted 1 promotes it and demotes page 2.
+  // Each row is {key, loaded value version, cumulative misses}.
+  const std::array<ExpectedAccess, 11> accesses = {{
+      {1, 1, 1}, {2, 2, 2}, {3, 3, 3}, {4, 4, 4},
+      {4, 4, 4}, {1, 1, 4}, {1, 1, 4}, {5, 5, 5},
+      {1, 1, 5}, {3, 3, 5}, {4, 4, 5},
+  }};
+  int loader_calls = 0;
+  auto loader = [&](const int&) { return ++loader_calls; };
+  cache::Lirs<int, int> cache(4, loader);
+
+  for (size_t i = 0; i < accesses.size(); ++i) {
+    const auto& access = accesses[i];
+    SCOPED_TRACE(testing::Message() << "access=" << i + 1
+                                  << ", key=" << access.key);
+    ASSERT_EQ(cache.LookUpUpdate(access.key), access.value);
+    ASSERT_EQ(cache.GetCacheMissCount(), access.misses);
+    ASSERT_EQ(loader_calls, access.misses);
+    ASSERT_EQ(cache.GetAccessCount(), i + 1);
+  }
+}
+
+TEST(LirsCacheTest, EvictedHirOutsideStackReturnsAsNewPage) {
+  // Evicting demoted 1 must remove its directory entry before it returns.
+  // Each row is {key, loaded value version, cumulative misses}.
+  const std::array<ExpectedAccess, 11> accesses = {{
+      {1, 1, 1}, {2, 2, 2}, {3, 3, 3}, {4, 4, 4},
+      {4, 4, 4}, {5, 5, 5}, {1, 6, 6}, {6, 7, 7},
+      {4, 4, 7}, {2, 2, 7}, {3, 3, 7},
+  }};
+  int loader_calls = 0;
+  auto loader = [&](const int&) { return ++loader_calls; };
+  cache::Lirs<int, int> cache(4, loader);
+
+  for (size_t i = 0; i < accesses.size(); ++i) {
+    const auto& access = accesses[i];
+    SCOPED_TRACE(testing::Message() << "access=" << i + 1
+                                  << ", key=" << access.key);
+    ASSERT_EQ(cache.LookUpUpdate(access.key), access.value);
+    ASSERT_EQ(cache.GetCacheMissCount(), access.misses);
+    ASSERT_EQ(loader_calls, access.misses);
+    ASSERT_EQ(cache.GetAccessCount(), i + 1);
+  }
+}
+
+TEST(LirsCacheTest, StackPruningForgetsNonResidentHistory) {
+  // Refreshing all LIR pages prunes ghost 4, so its return is HIR.
+  // Each row is {key, loaded value version, cumulative misses}.
+  const std::array<ExpectedAccess, 13> accesses = {{
+      {1, 1, 1}, {2, 2, 2}, {3, 3, 3}, {4, 4, 4},
+      {5, 5, 5}, {1, 1, 5}, {2, 2, 5}, {3, 3, 5},
+      {4, 6, 6}, {6, 7, 7}, {1, 1, 7}, {2, 2, 7},
+      {3, 3, 7},
+  }};
+  int loader_calls = 0;
+  auto loader = [&](const int&) { return ++loader_calls; };
+  cache::Lirs<int, int> cache(4, loader);
+
+  for (size_t i = 0; i < accesses.size(); ++i) {
+    const auto& access = accesses[i];
+    SCOPED_TRACE(testing::Message() << "access=" << i + 1
+                                  << ", key=" << access.key);
+    ASSERT_EQ(cache.LookUpUpdate(access.key), access.value);
+    ASSERT_EQ(cache.GetCacheMissCount(), access.misses);
+    ASSERT_EQ(loader_calls, access.misses);
+    ASSERT_EQ(cache.GetAccessCount(), i + 1);
+  }
+}
+
+TEST(LirsCacheTest, HirHitOutsideStackRefreshesQueueRecency) {
+  // With two HIR slots, a hit outside the stack must refresh queue recency.
+  // Each row is {key, loaded value version, cumulative misses}.
+  const std::array<ExpectedAccess, 15> accesses = {{
+      {1, 1, 1}, {2, 2, 2}, {3, 3, 3}, {4, 4, 4},
+      {5, 5, 5}, {6, 6, 6}, {7, 7, 7}, {8, 8, 8},
+      {9, 9, 9}, {10, 10, 10}, {9, 9, 10}, {10, 10, 10},
+      {1, 1, 10}, {11, 11, 11}, {1, 1, 11},
+  }};
+  int loader_calls = 0;
+  auto loader = [&](const int&) { return ++loader_calls; };
+  cache::Lirs<int, int> cache(10, loader);
+
+  for (size_t i = 0; i < accesses.size(); ++i) {
+    const auto& access = accesses[i];
+    SCOPED_TRACE(testing::Message() << "access=" << i + 1
+                                  << ", key=" << access.key);
+    ASSERT_EQ(cache.LookUpUpdate(access.key), access.value);
+    ASSERT_EQ(cache.GetCacheMissCount(), access.misses);
+    ASSERT_EQ(loader_calls, access.misses);
+    ASSERT_EQ(cache.GetAccessCount(), i + 1);
+  }
+}
+
+TEST(LirsCacheTest, FiftyAccessesWithChangingWorkingSet) {
+  // Mix resident promotions, ghost reloads, scans and working set changes.
+  // Each row is {key, loaded value version, cumulative misses}.
+  const std::array<ExpectedAccess, 50> accesses = {{
+      {1, 1, 1}, {2, 2, 2}, {3, 3, 3}, {4, 4, 4},
+      {4, 4, 4}, {5, 5, 5}, {4, 4, 5}, {1, 6, 6},
+      {1, 6, 6}, {6, 7, 7}, {2, 8, 8}, {3, 3, 8},
+      {5, 9, 9}, {5, 9, 9}, {7, 10, 10}, {8, 11, 11},
+      {7, 12, 12}, {9, 13, 13}, {8, 14, 14}, {6, 15, 15},
+      {10, 16, 16}, {11, 17, 17}, {12, 18, 18}, {13, 19, 19},
+      {4, 20, 20}, {5, 9, 20}, {4, 20, 20}, {5, 9, 20},
+      {14, 21, 21}, {15, 22, 22}, {1, 23, 23}, {2, 24, 24},
+      {3, 25, 25}, {4, 20, 25}, {1, 26, 26}, {2, 27, 27},
+      {3, 28, 28}, {4, 20, 28}, {1, 26, 28}, {2, 27, 28},
+      {5, 29, 29}, {6, 30, 30}, {5, 31, 31}, {6, 32, 32},
+      {7, 33, 33}, {8, 34, 34}, {5, 31, 34}, {6, 32, 34},
+      {7, 35, 35}, {8, 36, 36},
+  }};
+  int loader_calls = 0;
+  auto loader = [&](const int&) { return ++loader_calls; };
+  cache::Lirs<int, int> cache(4, loader);
+
+  for (size_t i = 0; i < accesses.size(); ++i) {
+    const auto& access = accesses[i];
+    SCOPED_TRACE(testing::Message() << "access=" << i + 1
+                                  << ", key=" << access.key);
+    ASSERT_EQ(cache.LookUpUpdate(access.key), access.value);
+    ASSERT_EQ(cache.GetCacheMissCount(), access.misses);
+    ASSERT_EQ(loader_calls, access.misses);
+    ASSERT_EQ(cache.GetAccessCount(), i + 1);
+  }
+}
+
+TEST(LirsCacheTest, HundredTwentyAccessesWithPromotionsAndStackPruning) {
+  // Exercise repeated promotions and pruning before returning to older keys.
+  // Each row is {key, loaded value version, cumulative misses}.
+  const std::array<ExpectedAccess, 120> accesses = {{
+      {1, 1, 1}, {2, 2, 2}, {3, 3, 3}, {4, 4, 4},
+      {4, 4, 4}, {5, 5, 5}, {4, 4, 5}, {1, 6, 6},
+      {1, 6, 6}, {6, 7, 7}, {2, 8, 8}, {3, 3, 8},
+      {5, 9, 9}, {5, 9, 9}, {7, 10, 10}, {8, 11, 11},
+      {7, 12, 12}, {9, 13, 13}, {8, 14, 14}, {6, 15, 15},
+      {10, 16, 16}, {11, 17, 17}, {12, 18, 18}, {13, 19, 19},
+      {4, 20, 20}, {5, 9, 20}, {4, 20, 20}, {5, 9, 20},
+      {14, 21, 21}, {15, 22, 22}, {1, 23, 23}, {2, 24, 24},
+      {3, 25, 25}, {4, 20, 25}, {1, 26, 26}, {2, 27, 27},
+      {3, 28, 28}, {4, 20, 28}, {1, 26, 28}, {2, 27, 28},
+      {5, 29, 29}, {6, 30, 30}, {5, 31, 31}, {6, 32, 32},
+      {7, 33, 33}, {8, 34, 34}, {5, 31, 34}, {6, 32, 34},
+      {7, 35, 35}, {8, 36, 36}, {20, 37, 37}, {21, 38, 38},
+      {22, 39, 39}, {23, 40, 40}, {24, 41, 41}, {25, 42, 42},
+      {26, 43, 43}, {27, 44, 44}, {28, 45, 45}, {29, 46, 46},
+      {30, 47, 47}, {31, 48, 48}, {32, 49, 49}, {33, 50, 50},
+      {34, 51, 51}, {35, 52, 52}, {36, 53, 53}, {37, 54, 54},
+      {38, 55, 55}, {39, 56, 56}, {39, 56, 56}, {38, 57, 57},
+      {37, 58, 58}, {36, 59, 59}, {35, 60, 60}, {34, 61, 61},
+      {33, 62, 62}, {32, 63, 63}, {31, 64, 64}, {30, 65, 65},
+      {0, 66, 66}, {-1, 67, 67}, {-2, 68, 68}, {-3, 69, 69},
+      {0, 70, 70}, {-1, 71, 71}, {-2, 72, 72}, {-3, 73, 73},
+      {0, 70, 73}, {-1, 71, 73}, {-2, 72, 73}, {-3, 73, 73},
+      {0, 70, 73}, {-1, 71, 73}, {-2, 72, 73}, {-3, 73, 73},
+      {0, 70, 73}, {-1, 71, 73}, {-2, 72, 73}, {-3, 73, 73},
+      {1, 74, 74}, {1, 74, 74}, {2, 75, 75}, {2, 75, 75},
+      {3, 76, 76}, {3, 76, 76}, {4, 77, 77}, {4, 77, 77},
+      {5, 78, 78}, {5, 78, 78}, {6, 79, 79}, {6, 79, 79},
+      {7, 80, 80}, {7, 80, 80}, {8, 81, 81}, {8, 81, 81},
+      {0, 82, 82}, {-1, 83, 83}, {0, 84, 84}, {-1, 85, 85},
+  }};
+  int loader_calls = 0;
+  auto loader = [&](const int&) { return ++loader_calls; };
+  cache::Lirs<int, int> cache(4, loader);
+
+  for (size_t i = 0; i < accesses.size(); ++i) {
+    const auto& access = accesses[i];
+    SCOPED_TRACE(testing::Message() << "access=" << i + 1
+                                  << ", key=" << access.key);
+    ASSERT_EQ(cache.LookUpUpdate(access.key), access.value);
+    ASSERT_EQ(cache.GetCacheMissCount(), access.misses);
+    ASSERT_EQ(loader_calls, access.misses);
+    ASSERT_EQ(cache.GetAccessCount(), i + 1);
+  }
+}
+
+TEST(LirsCacheTest, SixtyMixedAccessesAcrossCapacities) {
+  const std::array<int, 60> keys = {
+      // Reuse zero and negative keys while filling the cache.
+      0, -1, 0, 1, 2, -1, 0, 3, 1, 2,
+      // Interleave new pages with recently evicted pages.
+      4, 5, 3, 4, 6, 5, 7, 6, 8, 7,
+      // Return to a small working set and hit it repeatedly.
+      0, -1, 0, -1, 1, 2, 1, 2, 3, 3,
+      // Scan ten distinct pages to overflow small caches and their histories.
+      10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+      // Reverse the end of the scan, then return to the original working set.
+      19, 18, 17, 16, 0, -1, 0, -1, 1, 2,
+      // Alternate two small sets before revisiting the oldest keys.
+      3, 4, 3, 4, 5, 6, 5, 6, 0, -1,
+  };
+  const std::array<size_t, 6> capacities = {1, 2, 3, 4, 8, 20};
+  // Independently simulated outcomes: M = load, H = resident hit.
+  // Each string corresponds to the capacity at the same index above.
+  const std::array<std::string, 6> expected_outcomes = {
+      "MMMMMMMMMM" "MMMMMMMMMM" "MMMMMMMMMH" "MMMMMMMMMM" "HMMMMMMMMM" "MMMMMMMMMM",
+      "MMHMMMHMMM" "MMMMMMMMMM" "MMMMMMMMMH" "MMMMMMMMMM" "HMMMMMMMMM" "MMMMMMMMMM",
+      "MMHMMHHMMM" "MMMMMMMMMM" "MMMMMMMMMH" "MMMMMMMMMM" "HMMMMMMMMM" "MMMMMMMMMM",
+      "MMHMMHHMHM" "MMMMMMMMMM" "MMMMMMMMMH" "MMMMMMMMMM" "HMMMMMMMMM" "MMMMMMMMMM",
+      "MMHMMHHMHH" "MMHHMHMMMM" "MMHHMMHHMH" "MMMMMMMMMM" "HHMMMMHHMM" "MMHHMMHHHH",
+      "MMHMMHHMHH" "MMHHMHMHMH" "HHHHHHHHHH" "MMMMMMMMMM" "HHHHHHHHHH" "HHHHHHHHHH",
+  };
+
+  for (size_t scenario = 0; scenario < capacities.size(); ++scenario) {
+    SCOPED_TRACE(testing::Message() << "capacity=" << capacities[scenario]);
+    ASSERT_EQ(expected_outcomes[scenario].size(), keys.size());
+    size_t loader_calls = 0;
+    size_t expected_misses = 0;
+    auto loader = [&](const int& key) {
+      ++loader_calls;
+      return LoadPage(key);
+    };
+    cache::Lirs<int, int> cache(capacities[scenario], loader);
+
+    for (size_t i = 0; i < keys.size(); ++i) {
+      SCOPED_TRACE(testing::Message() << "access=" << i + 1
+                                    << ", key=" << keys[i]);
+      if (expected_outcomes[scenario][i] == 'M') {
+        ++expected_misses;
+      }
+      ASSERT_EQ(cache.LookUpUpdate(keys[i]), LoadPage(keys[i]));
+      ASSERT_EQ(cache.GetCacheMissCount(), expected_misses);
+      ASSERT_EQ(loader_calls, expected_misses);
+      ASSERT_EQ(cache.GetAccessCount(), i + 1);
     }
   }
 }

@@ -14,7 +14,7 @@ namespace cache {
 namespace {
 std::vector<std::pair<type, size_t>> ParseCache(nlohmann::json& json_data) {
   auto& hierarchy_config = json_data["cache"];
-  if (!hierarchy_config.is_array())
+  if (!hierarchy_config.is_array() || hierarchy_config.empty())
     throw std::runtime_error{"Incorrect configuration format."};
 
   std::vector<std::pair<type, size_t>> hierarchy{};
@@ -30,7 +30,7 @@ std::vector<std::pair<type, size_t>> ParseCache(nlohmann::json& json_data) {
     auto size_it = cache_layer.find("size");
     if ((size_it == cache_layer.end()) || !size_it->is_number_unsigned())
       throw std::runtime_error{"Incorrect configuration format."};
-    size_t size = size_it->get<unsigned>();
+    size_t size = size_it->get<size_t>();
 
     std::pair<type, size_t> handled_cache_layer = {ht_name_it->second, size};
     hierarchy.push_back(std::move(handled_cache_layer));

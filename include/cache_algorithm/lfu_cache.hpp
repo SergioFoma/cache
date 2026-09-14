@@ -6,6 +6,7 @@
 #include <list>
 #include <ostream>
 #include <unordered_map>
+#include <utility>
 
 #include "cache.hpp"
 
@@ -15,7 +16,7 @@ template <typename Key, typename Tp>
 class Lfu final : public Cache<Key, Tp> {
  public:
   explicit Lfu(size_t cache_cap, loader<Key, Tp> slow_get_page)
-      : Cache<Key, Tp>(slow_get_page),
+      : Cache<Key, Tp>(std::move(slow_get_page)),
         cache_sz_(kInitSize),
         cache_cap_(std::max(cache_cap, kMinCap)) {}
 
@@ -37,7 +38,8 @@ class Lfu final : public Cache<Key, Tp> {
     return AddNewElement(key);
   }
 
-  void Dump(std::ostream& out) const {
+  // ================================== DUMP ==================================
+  void Dump(std::ostream& out) const override {
     out << "\n=== LEAST FREQUENTLY USED (LFU) ===\n";
 
     DisplayListOfLists(out);
@@ -82,6 +84,7 @@ class Lfu final : public Cache<Key, Tp> {
   FreqList frequencies_;
   std::unordered_map<Key, ElInfo> data_base_;
 
+  // =============================== ALGORITHM ================================
   Tp MoveOldNode(const Key& key,
                  typename std::unordered_map<Key, ElInfo>::iterator hash_it) {
     ListIt& list_it = (hash_it->second).list_it;
@@ -175,6 +178,7 @@ class Lfu final : public Cache<Key, Tp> {
     return elem_val;
   }
 
+  // =============================== DUMP_HELP ================================
   void DisplayListOfLists(std::ostream& out) const {
 
     out << "Total Capacity: " << cache_cap_
@@ -198,7 +202,7 @@ class Lfu final : public Cache<Key, Tp> {
     }
   }
 
-  void DisplayDatabase(std::ostream& out) {
+  void DisplayDatabase(std::ostream& out) const {
     out << "\n--- DATA BASE ---\n";
     size_t num = 1;
 
@@ -207,6 +211,8 @@ class Lfu final : public Cache<Key, Tp> {
       ++num;
     }
   }
+
+  // ==========================================================================
 };
 }  // namespace cache
 

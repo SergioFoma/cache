@@ -5,6 +5,7 @@
 #include <cassert>
 #include <cstddef>
 #include <functional>
+#include <iomanip>
 #include <list>
 #include <stdexcept>
 #include <unordered_map>
@@ -16,17 +17,12 @@ namespace cache {
 
 template <typename Key, typename Tp>
 class Lru final : public Cache<Key, Tp> {
- private:
-  using list_iter = typename std::list<std::pair<Key, Tp>>::iterator;
-
-  const size_t cache_cap_;
-  std::list<std::pair<Key, Tp>> storage_;
-  std::unordered_map<Key, list_iter> hash_map_;
-
  public:
   explicit Lru(size_t cap, loader<Key, Tp> slow_get_page)
-      : Cache<Key, Tp>(slow_get_page), cache_cap_(std::max<size_t>(cap, 1)) {};
+      : Cache<Key, Tp>(std::move(slow_get_page)),
+        cache_cap_(std::max<size_t>(cap, 1)) {};
 
+  // =============================== ALGORITHM ================================
   Tp LookUpUpdate(const Key& key) override {
     assert(storage_.size() <= cache_cap_);
 
@@ -54,6 +50,44 @@ class Lru final : public Cache<Key, Tp> {
 
     return element_copy;
   }
+
+  // ================================== DUMP ==================================
+
+  void Dump(std::ostream& out) const override {
+
+    DisplayTitle(out);
+    DisplayStorage(out);
+
+    out << "============================================\n\n";
+  }
+
+ private:
+  using list_iter = typename std::list<std::pair<Key, Tp>>::iterator;
+
+  const size_t cache_cap_;
+  std::list<std::pair<Key, Tp>> storage_;
+  std::unordered_map<Key, list_iter> hash_map_;
+
+  // =============================== DUMP_HELP ================================
+
+  void DisplayTitle(std::ostream& out) const {
+    out << "\n=== Last Recently Used cache (LRU cache) ===\n" 
+    << "Cache cap:" << std::setw(9) << cache_cap_<< "|"
+    << "Total elements:" << std::setw(9) <<storage_.size() << "\n";
+  }
+
+  void DisplayStorage(std::ostream& out) const {
+    size_t i = 0;
+    out << "\n----------------- Storage ------------------\n";
+    for (const auto& el : storage_) {
+      out << "No:" << std::setw(4) << i << "|"
+          << "Key:" << std::setw(12) << el.first << "|"
+          << "Value:" << std::setw(12) << el.second << "\n";
+      ++i;
+    }
+  }
+
+  // ==========================================================================
 };
 }  // namespace cache
 

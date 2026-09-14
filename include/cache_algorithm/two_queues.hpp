@@ -7,6 +7,7 @@
 #include <ostream>
 #include <string>
 #include <unordered_map>
+#include <utility>
 
 #include "cache.hpp"
 
@@ -16,7 +17,7 @@ template <typename Key, typename Tp>
 class TwoQueues final : public Cache<Key, Tp> {
  public:
   explicit TwoQueues(size_t cache_cap, loader<Key, Tp> slow_get_page)
-      : Cache<Key, Tp>(slow_get_page),
+      : Cache<Key, Tp>(std::move(slow_get_page)),
         cache_cap_(cache_cap),
         in_cap_(std::max<size_t>(1, cache_cap * kInCoeff)),
         out_cap_(std::max<size_t>(1, cache_cap * kOutCoeff)),
@@ -44,7 +45,8 @@ class TwoQueues final : public Cache<Key, Tp> {
     return {};
   }
 
-  void Dump(std::ostream& out) const {
+  // ================================== DUMP ==================================
+  void Dump(std::ostream& out) const override {
     out << "\n=== TWO QUEUES CACHE DUMP ===\n";
 
     DisplayTitle(out);
@@ -88,6 +90,7 @@ class TwoQueues final : public Cache<Key, Tp> {
   std::list<CacheNode> lru_cache_;
   std::unordered_map<Key, ElInfo> data_base_;
 
+  // =============================== ALGORITHM ================================
   Tp AbsoluteMiss(const Key& key) {
     ++(this->misses_count_);
 
@@ -139,6 +142,7 @@ class TwoQueues final : public Cache<Key, Tp> {
     return old_elem;
   }
 
+  // =============================== DUMP_HELP ================================
   void DisplayTitle(std::ostream& out) const {
     size_t in_sz = in_cache_.size();
     size_t out_sz = out_cache_.size();
@@ -198,6 +202,8 @@ class TwoQueues final : public Cache<Key, Tp> {
       ++num;
     }
   }
+
+  // ==========================================================================
 };
 } // namespace cache
 

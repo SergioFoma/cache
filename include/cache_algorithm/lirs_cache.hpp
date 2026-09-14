@@ -34,7 +34,8 @@ public:
         return AbsoluteMiss(key);
     }
 
-    void Dump(std::ostream& out) const {
+    // ================================== DUMP ==================================
+    void Dump(std::ostream& out) const override {
         out << "\n=== LOW INTER-REFERENCE RECENCY SET ===\n";
 
         DisplayTitle(out);
@@ -90,6 +91,7 @@ CacheList cache_;
 Queue queue_;
 HashTable data_base_;
 
+// =============================== ALGORITHM ================================
 Tp EditExistingNode(const Key& key, HashTableIt& hash_it) {
     ElInfo& el_info = hash_it->second;;
 
@@ -237,13 +239,14 @@ void ReleaseHirList() {
     --hir_sz_;
 }
 
+// =============================== DUMP_HELP ================================
 void DisplayTitle(std::ostream& out) const {
     out << "Cache Capacity: " << cache_cap_ << '\n';
     out  << "LIR Capacity: " <<lir_cap_ << " | LIR Size: " << lir_sz_ << '\n';
     out << "HIR Capacity: " << hir_cap_ << " | HIR Size: " << hir_sz_ << '\n';
 }
 
-void DisplayList(std::ostream& out, std::list<CacheNode>& list, const std::string& message) const {
+void DisplayList(std::ostream& out, const std::list<CacheNode>& list, const std::string& message) const {
     out << message;
 
     size_t num = 1;
@@ -288,6 +291,8 @@ void DisplayDatabase(std::ostream& out) const {
     }
   }
 }
+
+// ==========================================================================
 };
 } // namespace cache
 
