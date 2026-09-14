@@ -6,7 +6,6 @@
 #include <nlohmann/json.hpp>
 #include <stdexcept>
 #include <string>
-#include <fstream>
 #include <unordered_map>
 
 #include "cache.hpp"
@@ -39,8 +38,9 @@ class Config {
   };
 
   bool GetIsDumpEnabled() const { return is_dump_enabled_; }
-  const std::vector<std::pair<type, size_t>>& GetCacheHierarchy() const { return hierarchy_; }
-
+  const std::vector<std::pair<type, size_t>>& GetCacheHierarchy() const {
+    return hierarchy_;
+  }
 };
 }  // namespace cache
 

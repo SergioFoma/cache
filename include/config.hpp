@@ -36,8 +36,9 @@ class Config {
   };
 
   bool GetIsDumpEnabled() const { return is_dump_enabled_; }
-  const std::vector<std::pair<type, size_t>>& GetCacheHierarchy() const { return hierarchy_; }
-
+  const std::vector<std::pair<type, size_t>>& GetCacheHierarchy() const {
+    return hierarchy_;
+  }
 };
 }  // namespace cache
 

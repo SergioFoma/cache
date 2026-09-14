@@ -14,12 +14,8 @@ using loader = std::function<Tp(const Key&)>;
 
 enum class type { kLru, kArc, kTwoQueues, kLfu, kLirs, kBelady };
 const std::unordered_map<std::string, type> kStringToEnumTable = {
-    {"lru", type::kLru},
-    {"arc", type::kArc},
-    {"2q", type::kTwoQueues},
-    {"lfu", type::kLfu},
-    {"lirs", type::kLirs},
-    {"belady", type::kBelady}};
+    {"lru", type::kLru}, {"arc", type::kArc},   {"2q", type::kTwoQueues},
+    {"lfu", type::kLfu}, {"lirs", type::kLirs}, {"belady", type::kBelady}};
 
 template <typename Key, typename Tp>
 class Cache {

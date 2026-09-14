@@ -63,8 +63,8 @@ void Config::ReadConfig() {
 
 std::vector<int> ReadTestsData(const std::string& file_name) {
 
-  std::ifstream test_file {file_name, std::ofstream::out};
-  size_t count {};
+  std::ifstream test_file{file_name, std::ofstream::out};
+  size_t count{};
   int key = 0;
   std::vector<int> keys;
 
