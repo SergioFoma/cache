@@ -4,10 +4,8 @@
 #include <algorithm>
 #include <cassert>
 #include <cstddef>
-#include <functional>
 #include <iomanip>
 #include <list>
-#include <stdexcept>
 #include <unordered_map>
 #include <utility>
 
@@ -26,7 +24,7 @@ class Lru final : public Cache<Key, Tp> {
   Tp LookUpUpdate(const Key& key) override {
     assert(storage_.size() <= cache_cap_);
 
-    (this->access_count_)++;
+    ++(this->access_count_);
 
     auto ht_it = hash_map_.find(key);
     if (ht_it != hash_map_.end()) {
@@ -36,7 +34,7 @@ class Lru final : public Cache<Key, Tp> {
       return list_it->second;
     }
 
-    (this->misses_count_)++;
+    ++(this->misses_count_);
 
     Tp element_copy = this->slow_get_page_(key);
 
@@ -71,9 +69,9 @@ class Lru final : public Cache<Key, Tp> {
   // =============================== DUMP_HELP ================================
 
   void DisplayTitle(std::ostream& out) const {
-    out << "\n=== Last Recently Used cache (LRU cache) ===\n" 
-    << "Cache cap:" << std::setw(9) << cache_cap_<< "|"
-    << "Total elements:" << std::setw(9) <<storage_.size() << "\n";
+    out << "\n=== Last Recently Used cache (LRU cache) ===\n"
+        << "Cache cap:" << std::setw(9) << cache_cap_ << "|"
+        << "Total elements:" << std::setw(9) << storage_.size() << "\n";
   }
 
   void DisplayStorage(std::ostream& out) const {

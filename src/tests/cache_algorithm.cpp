@@ -7,6 +7,7 @@
 #include <vector>
 
 #include <cache_algorithm/arc.hpp>
+#include <cache_algorithm/belady_cache.hpp>
 #include <cache_algorithm/lfu_cache.hpp>
 #include <cache_algorithm/lirs_cache.hpp>
 #include <cache_algorithm/lru_cache.hpp>
@@ -24,6 +25,73 @@ struct ExpectedAccess {
   size_t misses;
 };
 } // namespace
+
+TEST(BeladyCacheTest, EvictsFarthestFutureUse) {
+  cache::Belady<int, int> cache(3, LoadPage, {1, 2, 3, 4, 1, 3, 2});
+  for (int key : {1, 2, 3, 4, 1, 3}) {
+    EXPECT_EQ(cache.LookUpUpdate(key), LoadPage(key));
+  }
+  EXPECT_EQ(cache.GetCacheMissCount(), 4);
+  EXPECT_EQ(cache.LookUpUpdate(2), 20);
+  EXPECT_EQ(cache.GetCacheMissCount(), 5);
+}
+
+TEST(BeladyCacheTest, CapacityOneReloadsEvictedPage) {
+  int loads = 0;
+  cache::Belady<int, int> cache(1, [&](const int&) { return ++loads; },
+                               {1, 2, 1, 3, 3});
+  for (int key : {1, 2, 1, 3}) {
+    const int expected = loads + 1;
+    EXPECT_EQ(cache.LookUpUpdate(key), expected);
+  }
+  EXPECT_EQ(cache.LookUpUpdate(3), 4);
+  EXPECT_EQ(loads, 4);
+}
+
+TEST(BeladyCacheTest, LoaderFailureAllowsRetryOfSameRequest) {
+  bool fail = true;
+  cache::Belady<int, int> cache(1, [&](const int& key) {
+    if (key == 2 && fail) throw std::runtime_error("load failed");
+    return LoadPage(key);
+  }, {1, 2, 2, 1});
+  EXPECT_EQ(cache.LookUpUpdate(1), 10);
+  EXPECT_THROW(cache.LookUpUpdate(2), std::runtime_error);
+  fail = false;
+  EXPECT_EQ(cache.LookUpUpdate(2), 20);
+  EXPECT_EQ(cache.LookUpUpdate(2), 20);
+  EXPECT_EQ(cache.LookUpUpdate(1), 10);
+}
+
+TEST(BeladyCacheTest, MatchesFutureScanReference) {
+  std::mt19937 random(42);
+  std::vector<int> history(1000);
+  for (auto& key : history) key = static_cast<int>(random() % 17);
+  for (size_t capacity : {1, 2, 3, 8, 20}) {
+    SCOPED_TRACE(capacity);
+    std::vector<int> resident;
+    size_t misses = 0;
+    cache::Belady<int, int> cache(capacity, LoadPage, history);
+    for (size_t i = 0; i < history.size(); ++i) {
+      SCOPED_TRACE(i);
+      const int key = history[i];
+      if (std::find(resident.begin(), resident.end(), key) == resident.end()) {
+        ++misses;
+        if (resident.size() == capacity) {
+          auto next_use = [&](int candidate) {
+            return std::find(history.begin() + i + 1, history.end(), candidate);
+          };
+          auto victim = std::max_element(resident.begin(), resident.end(),
+              [&](int a, int b) { return next_use(a) < next_use(b); });
+          resident.erase(victim);
+        }
+        resident.push_back(key);
+      }
+      ASSERT_EQ(cache.LookUpUpdate(key), LoadPage(key));
+      ASSERT_EQ(cache.GetCacheMissCount(), misses);
+      ASSERT_EQ(cache.GetAccessCount(), i + 1);
+    }
+  }
+}
 
 // ============================================================================
 // === LFU cache ===

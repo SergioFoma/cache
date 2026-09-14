@@ -30,6 +30,8 @@ class Cache {
  public:
   explicit Cache(loader<Key, Tp> slow_get_page)
       : slow_get_page_(std::move(slow_get_page)) {};
+  explicit Cache(loader<Key, Tp>&& slow_get_page)
+      : slow_get_page_(slow_get_page) {};
 
   virtual Tp LookUpUpdate(const Key& key) = 0;
   void SwitchLoader(loader<Key, Tp> slow_get_page) {
