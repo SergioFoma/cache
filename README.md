@@ -1,5 +1,5 @@
-# Cache 
-This is C++ Vladimirov task. 
+# Cache
+This is C++ Vladimirov task.
 Collaborator SergioFoma.
 
 #### TODOs

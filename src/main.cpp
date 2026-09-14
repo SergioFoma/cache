@@ -16,7 +16,7 @@ int main() {
   try {
     constexpr size_t kCap = 100;
 
-    std::vector<int> test = cache::ReadTestsData("test.txt");
+    std::vector<int> test = cache::ReadTestsData("tests/test.txt");
 
     cache::Belady<int, int> cache_bel(kCap, [](int key) { return key; }, test);
     cache::TwoQueues<int, int> cache_2q(kCap, [](int key) { return key; });
