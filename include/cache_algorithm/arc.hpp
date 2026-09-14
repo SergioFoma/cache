@@ -13,11 +13,11 @@
 namespace cache {
 
 template <typename Key, typename Tp>
-class Arc : public Cache<Key, Tp> {
+class Arc final : public Cache<Key, Tp> {
  public:
   explicit Arc(size_t ram_cap, loader<Key, Tp> slow_get_page)
       : Cache<Key, Tp>(slow_get_page),
-        ram_cap_(ram_cap),
+        ram_cap_(std::max(ram_cap, kMinCap)),
         storage_cap_(2 * ram_cap) {}
 
   Tp LookUpUpdate(const Key& key) override {
@@ -77,7 +77,8 @@ class Arc : public Cache<Key, Tp> {
   };
 
   static constexpr size_t kSingleStep = 1;
-  static constexpr size_t kMinCap = 0;
+  static constexpr size_t kMinVal = 0;
+  static constexpr size_t kMinCap = 1;
   static constexpr size_t kMinSz = 1;
 
   size_t ram_cap_;
@@ -141,7 +142,7 @@ class Arc : public Cache<Key, Tp> {
     size_t delta =
         (bottom_2_sz >= bottom_1_sz ? kSingleStep : bottom_1_sz / bottom_2_sz);
 
-    adapt_param_ = (adapt_param_ > delta ? adapt_param_ - delta : kMinCap);
+    adapt_param_ = (adapt_param_ > delta ? adapt_param_ - delta : kMinVal);
 
     Tp elem = this->slow_get_page_(key);
 

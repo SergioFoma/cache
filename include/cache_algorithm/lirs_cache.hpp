@@ -14,12 +14,12 @@
 namespace cache {
 
 template <typename Key, typename Tp>
-class Lirs: public Cache<Key, Tp> {
+class Lirs final : public Cache<Key, Tp> {
 public:
     explicit Lirs(size_t cache_cap, loader<Key, Tp> slow_get_page)
         : Cache<Key, Tp>(slow_get_page),
-          lir_cap_(std::max<size_t>(kMinSz, cache_cap * 0.8)),
-          hir_cap_(cache_cap - lir_cap_),
+          lir_cap_(std::max<size_t>(kMinCap, cache_cap * kLirCoeff)),
+          hir_cap_(std::max<size_t>(kMinCap, cache_cap * kHirCoeff)),
           cache_cap_(cache_cap) {}
 
     Tp LookUpUpdate(const Key& key) override{
@@ -76,7 +76,9 @@ struct ElInfo {
 using HashTable = std::unordered_map<Key, ElInfo>;
 using HashTableIt = typename HashTable::iterator;
 
-static constexpr size_t kMinSz = 1;
+static constexpr size_t kMinCap = 1;
+static constexpr double kLirCoeff = 0.8;
+static constexpr double kHirCoeff = 0.2;
 
 size_t lir_sz_ = 0;
 size_t lir_cap_;

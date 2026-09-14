@@ -12,12 +12,12 @@
 namespace cache {
 
 template <typename Key, typename Tp>
-class Lfu : public Cache<Key, Tp> {
+class Lfu final : public Cache<Key, Tp> {
  public:
   explicit Lfu(size_t cache_cap, loader<Key, Tp> slow_get_page)
       : Cache<Key, Tp>(slow_get_page),
         cache_sz_(kInitSize),
-        cache_cap_(cache_cap) {}
+        cache_cap_(std::max(cache_cap, kMinCap)) {}
 
   Tp LookUpUpdate(const Key& key) override {
     ++(this->access_count_);
@@ -74,6 +74,7 @@ class Lfu : public Cache<Key, Tp> {
 
   static constexpr size_t kMinCounter = 1;
   static constexpr size_t kInitSize = 0;
+  static constexpr size_t kMinCap = 1;
 
   size_t cache_sz_;
   size_t cache_cap_;

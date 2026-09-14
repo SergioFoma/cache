@@ -13,7 +13,7 @@
 namespace cache {
 
 template <typename Key, typename Tp>
-class TwoQueues : public Cache<Key, Tp> {
+class TwoQueues final : public Cache<Key, Tp> {
  public:
   explicit TwoQueues(size_t cache_cap, loader<Key, Tp> slow_get_page)
       : Cache<Key, Tp>(slow_get_page),
