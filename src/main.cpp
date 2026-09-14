@@ -6,8 +6,8 @@
 #include "cache_algorithm/arc.hpp"
 #include "cache_algorithm/belady_cache.hpp"
 #include "cache_algorithm/lfu_cache.hpp"
+#include "parser.hpp"
 #include "cache_hierarchy.hpp"
-#include "config.hpp"
 
 int main() {
   try {

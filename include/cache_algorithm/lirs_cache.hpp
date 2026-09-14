@@ -19,7 +19,7 @@ public:
     explicit Lirs(size_t cache_cap, loader<Key, Tp> slow_get_page)
         : Cache<Key, Tp>(slow_get_page),
           lir_cap_(std::max<size_t>(kMinCap, cache_cap * kLirCoeff)),
-          hir_cap_(std::max<size_t>(kMinCap, cache_cap * kHirCoeff)),
+          hir_cap_(lir_cap_ > cache_cap ? kMinCap : cache_cap - lir_cap_),
           cache_cap_(cache_cap) {}
 
     Tp LookUpUpdate(const Key& key) override{
@@ -122,7 +122,7 @@ Tp LirHit(ElInfo& el_info) {
 void StackPruning() {
     auto cache_it = std::prev(cache_.end());
 
-    while (cache_it->node_type != NodeType::kLir) {
+    while (!cache_.empty() && cache_it->node_type != NodeType::kLir) {
         Key current_key = cache_it->key;
 
         if (cache_it->node_type == NodeType::kNonRes) {
@@ -138,12 +138,13 @@ void StackPruning() {
 }
 
 Tp HirHit(const Key& key, ElInfo& el_info) {
-    bool is_in_stack = (el_info.cache_it == cache_.end() ? false : true);
+    bool is_in_stack = (el_info.cache_it != cache_.end());
 
     Tp elem = (el_info.queue_it)->val;
     if (!is_in_stack) {
         CacheNode new_lir = {key, NodeType::kHir, elem};
         cache_.push_front(new_lir);
+        queue_.splice(queue_.end(), queue_, el_info.queue_it);
         data_base_[key] = {NodeType::kHir, cache_.begin(), el_info.queue_it};
 
         return elem;
@@ -154,6 +155,7 @@ Tp HirHit(const Key& key, ElInfo& el_info) {
     ++lir_sz_;
 
     queue_.erase(el_info.queue_it);
+    el_info.queue_it = queue_.end();
     --hir_sz_;
 
     UpdateBottomLir();
@@ -186,8 +188,16 @@ Tp NonResHit(const Key& key, ElInfo& el_info) {
 
     Tp elem = this->slow_get_page_(key);
 
-    *(el_info.cache_it) = {key, NodeType::kLir, elem};
-    cache_.splice(cache_.begin(), cache_, el_info.cache_it);
+    if (el_info.cache_it != cache_.end()) {
+        *(el_info.cache_it) = {key, NodeType::kLir, elem};
+        cache_.splice(cache_.begin(), cache_, el_info.cache_it);
+    } else if (el_info.queue_it != queue_.end()){
+        cache_.splice(cache_.begin(), queue_, el_info.queue_it);
+        cache_.front().node_type = NodeType::kLir;
+    } else {
+        cache_.push_front(CacheNode{key, NodeType::kLir, elem});
+    }
+
     ++lir_sz_;
 
     data_base_[key] = {NodeType::kLir, cache_.begin(), queue_.end()};
@@ -226,13 +236,15 @@ Tp AbsoluteMiss(const Key& key) {
 
 void ReleaseHirList() {
     CacheNode& node = queue_.front();
-    data_base_[node.key].node_type = NodeType::kNonRes;
-    data_base_[node.key].queue_it = queue_.end();
     auto hash_it = data_base_.find(node.key);
 
     if (hash_it != data_base_.end() && (hash_it->second).cache_it != cache_.end()) {
+        data_base_[node.key].node_type = NodeType::kNonRes;
+        data_base_[node.key].queue_it = queue_.end();
         ElInfo& deleted_el = hash_it->second;
         deleted_el.cache_it->node_type = NodeType::kNonRes;
+    } else if (hash_it != data_base_.end()) {
+        data_base_.erase(hash_it);
     }
 
     queue_.pop_front();

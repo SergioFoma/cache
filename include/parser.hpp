@@ -1,11 +1,12 @@
-#ifndef CONFIG_HPP_
-#define CONFIG_HPP_
+#ifndef PARSER_HPP_
+#define PARSER_HPP_
 
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <stdexcept>
 #include <string>
+#include <fstream>
 #include <unordered_map>
 
 #include "cache.hpp"
@@ -37,7 +38,8 @@ class Config {
 
   bool GetIsDumpEnabled() const { return is_dump_enabled_; }
   const std::vector<std::pair<type, size_t>>& GetCacheHierarchy() const { return hierarchy_; }
-
+  std::fstream CreateTestsData(unsigned int seed, const char* file_name);
+  std::vector<int> ReadTestsData(std::fstream& data_file);
 };
 }  // namespace cache
 

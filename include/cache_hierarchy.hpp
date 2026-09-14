@@ -14,7 +14,7 @@
 #include "cache_algorithm/lirs_cache.hpp"
 #include "cache_algorithm/lru_cache.hpp"
 #include "cache_algorithm/two_queues.hpp"
-#include "config.hpp"
+#include "parser.hpp"
 
 namespace cache {
 

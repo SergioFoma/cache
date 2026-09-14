@@ -35,7 +35,7 @@ target_link_libraries(${TARGET} PRIVATE nlohmann_json::nlohmann_json)
 
 include_directories("include")
 
-#tests 
+#tests
 enable_testing()
 
 include(GoogleTest)
