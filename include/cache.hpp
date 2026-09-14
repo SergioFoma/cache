@@ -12,13 +12,14 @@ namespace cache {
 template <typename Key, typename Tp>
 using loader = std::function<Tp(const Key&)>;
 
-enum class type { kLru, kArc, kTwoQueues, kLfu, kLirs };
+enum class type { kLru, kArc, kTwoQueues, kLfu, kLirs, kBelady };
 const std::unordered_map<std::string, type> kStringToEnumTable = {
     {"lru", type::kLru},
     {"arc", type::kArc},
     {"2q", type::kTwoQueues},
     {"lfu", type::kLfu},
-    {"lirs", type::kLirs}};
+    {"lirs", type::kLirs},
+    {"belady", type::kBelady}};
 
 template <typename Key, typename Tp>
 class Cache {
@@ -28,10 +29,10 @@ class Cache {
   loader<Key, Tp> slow_get_page_;
 
  public:
-  explicit Cache(loader<Key, Tp> slow_get_page)
-      : slow_get_page_(std::move(slow_get_page)) {};
-  explicit Cache(loader<Key, Tp>&& slow_get_page)
+  explicit Cache(const loader<Key, Tp>& slow_get_page)
       : slow_get_page_(slow_get_page) {};
+  explicit Cache(loader<Key, Tp>&& slow_get_page)
+      : slow_get_page_(std::move(slow_get_page)) {};
 
   virtual Tp LookUpUpdate(const Key& key) = 0;
   void SwitchLoader(loader<Key, Tp> slow_get_page) {

@@ -38,6 +38,9 @@ class CacheHierarchy {
         return std::make_unique<Lfu<Key, Tp>>(cap, std::move(slow_get_page));
       case type::kLirs:
         return std::make_unique<Lirs<Key, Tp>>(cap, std::move(slow_get_page));
+      case type::kBelady:
+        throw std::runtime_error(
+            "Belady(Ideal) cache is forbidden in cache hierarchy.");
       default:
         assert(0 && "Missed cache declaration");
     }
@@ -67,10 +70,10 @@ class CacheHierarchy {
 
   void Dump(std::ostream& out) const {
     size_t i = 0;
-    for (auto layer = cache_vector_.crbegin();
-         layer != cache_vector_.crend(); ++layer) {
-      out << "\n=============== Cache num:" << std::setw(4)
-          << i << " ==============\n";
+    for (auto layer = cache_vector_.crbegin(); layer != cache_vector_.crend();
+         ++layer) {
+      out << "\n=============== Cache num:" << std::setw(4) << i
+          << " ==============\n";
       (*layer)->Dump(out);
       ++i;
     }
