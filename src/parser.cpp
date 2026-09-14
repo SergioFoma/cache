@@ -7,16 +7,9 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include <random>
 #include "cache.hpp"
 
 namespace cache {
-
-namespace {
-constexpr int start_value = 1;
-constexpr int final_value = 100;
-constexpr int val_count = 50'000;
-}
 
 namespace {
 std::vector<std::pair<type, size_t>> ParseCache(nlohmann::json& json_data) {
@@ -55,7 +48,7 @@ bool ParseIsDump(nlohmann::json& json_data) {
 }
 }  // namespace
 
-void Config::readConfig() {
+void Config::ReadConfig() {
 
   auto cache_it = json_data_.find("cache");
   if (cache_it != json_data_.end()) {
@@ -68,29 +61,16 @@ void Config::readConfig() {
   }
 }
 
-std::fstream CreateTestsData(unsigned int seed, const char* file_name) {
+std::vector<int> ReadTestsData(const std::string& file_name) {
 
-  std::mt19937 gen(seed);
-
-  std::uniform_int_distribution<> distrib(start_value, final_value);
-
-  std::fstream data_file(file_name);
-
-  for (int val_num = start_value; val_num <= val_count; ++val_num) {
-    data_file << distrib(gen) << '\n';
-  }
-
-  return data_file;
-}
-
-std::vector<int> ReadTestsData(std::fstream& data_file) {
-
+  std::ifstream test_file {file_name, std::ofstream::out};
+  size_t count {};
+  int key = 0;
   std::vector<int> keys;
 
-  int key = 0;
-
-  for (int val_num = start_value; val_num <= val_count; ++val_num) {
-    data_file >> key;
+  test_file >> count;
+  for (size_t i = 0; i < count; ++i) {
+    test_file >> key;
     keys.push_back(key);
   }
 

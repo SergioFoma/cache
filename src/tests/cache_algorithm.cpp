@@ -6,12 +6,12 @@
 #include <string>
 #include <vector>
 
-#include <cache_algorithm/arc.hpp>
-#include <cache_algorithm/belady_cache.hpp>
-#include <cache_algorithm/lfu_cache.hpp>
-#include <cache_algorithm/lirs_cache.hpp>
-#include <cache_algorithm/lru_cache.hpp>
-#include <cache_algorithm/two_queues.hpp>
+#include "cache_algorithm/arc.hpp"
+#include "cache_algorithm/belady_cache.hpp"
+#include "cache_algorithm/lfu_cache.hpp"
+#include "cache_algorithm/lirs_cache.hpp"
+#include "cache_algorithm/lru_cache.hpp"
+#include "cache_algorithm/two_queues.hpp"
 
 namespace {
 int LoadPage(const int& key) {

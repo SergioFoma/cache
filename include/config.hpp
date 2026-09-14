@@ -1,19 +1,16 @@
-#ifndef PARSER_HPP_
-#define PARSER_HPP_
+#ifndef CONFIG_HPP_
+#define CONFIG_HPP_
 
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <stdexcept>
 #include <string>
-#include <fstream>
 #include <unordered_map>
 
 #include "cache.hpp"
 
 namespace cache {
-
-std::vector<int> ReadTestsData(const std::string& file_name);
 
 const std::vector<std::pair<type, size_t>> kDefaultCacheConfiguration = {
     {type::kLru, 10}};
