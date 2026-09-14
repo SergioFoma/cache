@@ -74,6 +74,9 @@ class Lfu final : public Cache<Key, Tp> {
     ListIt list_it;
   };
 
+  using HashTable = std::unordered_map<Key, ElInfo>;
+  using TableIt = typename HashTable::iterator;
+
   static constexpr size_t kMinCounter = 1;
   static constexpr size_t kInitSize = 0;
   static constexpr size_t kMinCap = 1;
@@ -82,11 +85,10 @@ class Lfu final : public Cache<Key, Tp> {
   size_t cache_cap_;
 
   FreqList frequencies_;
-  std::unordered_map<Key, ElInfo> data_base_;
+  HashTable data_base_;
 
   // =============================== ALGORITHM ================================
-  Tp MoveOldNode(const Key& key,
-                 typename std::unordered_map<Key, ElInfo>::iterator hash_it) {
+  Tp MoveOldNode(const Key& key, TableIt& hash_it) {
     ListIt& list_it = (hash_it->second).list_it;
     ElemIt& elem_it = (hash_it->second).elem_it;
 

@@ -72,11 +72,19 @@ class Arc final : public Cache<Key, Tp> {
     Tp val;
   };
 
+  using CacheList = std::list<CacheNode>;
+  using ListIt = typename CacheList::iterator;
+  using KeyList = std::list<Key>;
+  using KeyIt = typename KeyList::iterator;
+
   struct ElInfo {
     CacheType cache_type;
-    typename std::list<CacheNode>::iterator list_it;
-    typename std::list<Key>::iterator key_it;
+    ListIt list_it;
+    KeyIt key_it;
   };
+
+  using HashTable = std::unordered_map<Key, ElInfo>;
+  using TableIt = typename HashTable::iterator;
 
   static constexpr size_t kSingleStep = 1;
   static constexpr size_t kMinVal = 0;
@@ -89,15 +97,14 @@ class Arc final : public Cache<Key, Tp> {
   bool bottom_2_hit = true;
   bool bottom_2_miss = false;
 
-  std::list<CacheNode> top_1;
-  std::list<Key> bottom_1;
-  std::list<CacheNode> top_2;
-  std::list<Key> bottom_2;
-  std::unordered_map<Key, ElInfo> data_base_;
+  CacheList top_1;
+  KeyList bottom_1;
+  CacheList top_2;
+  KeyList bottom_2;
+  HashTable data_base_;
 
   // =============================== ALGORITHM ================================
-  Tp FirstTopHit(const Key& key,
-                 typename std::unordered_map<Key, ElInfo>::iterator& hash_it) {
+  Tp FirstTopHit(const Key& key, TableIt& hash_it) {
     auto list_it = (hash_it->second).list_it;
     top_2.splice(top_2.begin(), top_1, list_it);
     data_base_[key] = {CacheType::kT2, list_it, {}};
@@ -105,16 +112,14 @@ class Arc final : public Cache<Key, Tp> {
     return list_it->val;
   }
 
-  Tp SecondTopHit(typename std::unordered_map<Key, ElInfo>::iterator& hash_it) {
+  Tp SecondTopHit(TableIt& hash_it) {
     auto list_it = (hash_it->second).list_it;
     top_2.splice(top_2.begin(), top_2, list_it);
 
     return list_it->val;
   }
 
-  Tp FirstBottomHit(
-      const Key& key,
-      typename std::unordered_map<Key, ElInfo>::iterator& hash_it) {
+  Tp FirstBottomHit(const Key& key, TableIt& hash_it) {
     ++(this->misses_count_);
 
     size_t bottom_1_sz = std::max(kMinSz, bottom_1.size());
@@ -136,9 +141,7 @@ class Arc final : public Cache<Key, Tp> {
     return elem;
   }
 
-  Tp SecondBottomHit(
-      const Key& key,
-      typename std::unordered_map<Key, ElInfo>::iterator& hash_it) {
+  Tp SecondBottomHit(const Key& key, TableIt& hash_it) {
     ++(this->misses_count_);
 
     size_t bottom_1_sz = bottom_1.size();
@@ -237,7 +240,7 @@ class Arc final : public Cache<Key, Tp> {
         << "BOTTOM 2: " << bottom_2_sz << '\n';
   }
 
-  void DisplayKeyCache(std::ostream& out, const std::list<Key>& list,
+  void DisplayKeyCache(std::ostream& out, const KeyList& list,
                        const std::string& message) const {
     out << message;
 
@@ -248,7 +251,7 @@ class Arc final : public Cache<Key, Tp> {
     }
   }
 
-  void DisplayKeyValueCache(std::ostream& out, const std::list<CacheNode>& list,
+  void DisplayKeyValueCache(std::ostream& out, const CacheList& list,
                             const std::string& message) const {
     out << message;
 

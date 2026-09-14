@@ -74,21 +74,29 @@ class TwoQueues final : public Cache<Key, Tp> {
     Tp val;
   };
 
+  using CacheList = std::list<CacheNode>;
+  using ListIt = typename CacheList::iterator;
+  using KeyList = std::list<Key>;
+  using KeyIt = typename KeyList::iterator;
+
   struct ElInfo {
     CacheType cache_type;
-    typename std::list<CacheNode>::iterator list_it;
-    typename std::list<Key>::iterator key_it;
+    ListIt list_it;
+    KeyIt key_it;
   };
+
+  using HashTable = std::unordered_map<Key, ElInfo>;
+  using TableIt = typename HashTable::iterator;
 
   size_t cache_cap_;
   size_t in_cap_;
   size_t out_cap_;
   size_t lru_cap_;
 
-  std::list<CacheNode> in_cache_;
-  std::list<Key> out_cache_;
-  std::list<CacheNode> lru_cache_;
-  std::unordered_map<Key, ElInfo> data_base_;
+  CacheList in_cache_;
+  KeyList out_cache_;
+  CacheList lru_cache_;
+  HashTable data_base_;
 
   // =============================== ALGORITHM ================================
   Tp AbsoluteMiss(const Key& key) {
@@ -116,15 +124,14 @@ class TwoQueues final : public Cache<Key, Tp> {
     return old_elem;
   }
 
-  Tp LruHit(typename std::unordered_map<Key, ElInfo>::iterator hash_it) {
+  Tp LruHit(TableIt& hash_it) {
     auto list_it = hash_it->second.list_it;
     lru_cache_.splice(lru_cache_.begin(), lru_cache_, list_it);
 
     return lru_cache_.front().val;
   }
 
-  Tp OutHit(const Key& key,
-            typename std::unordered_map<Key, ElInfo>::iterator hash_it) {
+  Tp OutHit(const Key& key, TableIt& hash_it) {
     ++(this->misses_count_);
 
     Tp old_elem = this->slow_get_page_(key);
@@ -157,8 +164,7 @@ class TwoQueues final : public Cache<Key, Tp> {
         << "LRU: " << lru_sz << "/" << lru_cap_ << '\n';
   }
 
-  void DisplayKeyValueCache(std::ostream& out,
-                            const std::list<CacheNode>& cache_list,
+  void DisplayKeyValueCache(std::ostream& out, const CacheList& cache_list,
                             const std::string& message) const {
     out << message;
     size_t num = 1;
@@ -205,6 +211,6 @@ class TwoQueues final : public Cache<Key, Tp> {
 
   // ==========================================================================
 };
-} // namespace cache
+}  // namespace cache
 
 #endif

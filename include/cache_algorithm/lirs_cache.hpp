@@ -1,13 +1,13 @@
 #ifndef LIRS_HPP_
 #define LIRS_HPP_
 
-#include <list>
 #include <algorithm>
-#include <unordered_map>
 #include <functional>
 #include <iterator>
+#include <list>
 #include <ostream>
 #include <string>
+#include <unordered_map>
 
 #include "cache.hpp"
 
@@ -15,101 +15,97 @@ namespace cache {
 
 template <typename Key, typename Tp>
 class Lirs final : public Cache<Key, Tp> {
-public:
-    explicit Lirs(size_t cache_cap, loader<Key, Tp> slow_get_page)
-        : Cache<Key, Tp>(slow_get_page),
-          lir_cap_(std::max<size_t>(kMinCap, cache_cap * kLirCoeff)),
-          hir_cap_(lir_cap_ > cache_cap ? kMinCap : cache_cap - lir_cap_),
-          cache_cap_(cache_cap) {}
+ public:
+  explicit Lirs(size_t cache_cap, loader<Key, Tp> slow_get_page)
+      : Cache<Key, Tp>(slow_get_page),
+        lir_cap_(std::max<size_t>(kMinCap, cache_cap * kLirCoeff)),
+        hir_cap_(lir_cap_ > cache_cap ? kMinCap : cache_cap - lir_cap_),
+        cache_cap_(cache_cap) {}
 
-    Tp LookUpUpdate(const Key& key) override{
-        ++(this->access_count_);
+  Tp LookUpUpdate(const Key& key) override {
+    ++(this->access_count_);
 
-        auto hash_it = data_base_.find(key);
+    auto hash_it = data_base_.find(key);
 
-        if (hash_it != data_base_.end()) {
-            return EditExistingNode(key, hash_it);
-        }
-
-        return AbsoluteMiss(key);
+    if (hash_it != data_base_.end()) {
+      return EditExistingNode(key, hash_it);
     }
 
-    // ================================== DUMP ==================================
-    void Dump(std::ostream& out) const override {
-        out << "\n=== LOW INTER-REFERENCE RECENCY SET ===\n";
+    return AbsoluteMiss(key);
+  }
 
-        DisplayTitle(out);
+  // ================================== DUMP ==================================
+  void Dump(std::ostream& out) const override {
+    out << "\n=== LOW INTER-REFERENCE RECENCY SET ===\n";
 
-        DisplayList(out, cache_, "\n--- CACHE ---\n");
+    DisplayTitle(out);
 
-        DisplayList(out, queue_, "\n--- QUEUE ---\n");
+    DisplayList(out, cache_, "\n--- CACHE ---\n");
 
-        DisplayDatabase(out);
+    DisplayList(out, queue_, "\n--- QUEUE ---\n");
 
-        out << "===================================\n\n";
-    }
+    DisplayDatabase(out);
 
-private:
-enum class NodeType {
-    kLir,
-    kHir,
-    kNonRes
-};
+    out << "===================================\n\n";
+  }
 
-struct CacheNode {
+ private:
+  enum class NodeType { kLir, kHir, kNonRes };
+
+  struct CacheNode {
     Key key;
     NodeType node_type;
     Tp val;
-};
+  };
 
-using CacheList = std::list<CacheNode>;
-using CacheIt = typename CacheList::iterator;
-using Queue = std::list<CacheNode>;
-using QueueIt = typename Queue::iterator;
+  using CacheList = std::list<CacheNode>;
+  using CacheIt = typename CacheList::iterator;
+  using Queue = std::list<CacheNode>;
+  using QueueIt = typename Queue::iterator;
 
-
-struct ElInfo {
+  struct ElInfo {
     NodeType node_type;
     CacheIt cache_it;
     QueueIt queue_it;
-};
+  };
 
-using HashTable = std::unordered_map<Key, ElInfo>;
-using HashTableIt = typename HashTable::iterator;
+  using HashTable = std::unordered_map<Key, ElInfo>;
+  using HashTableIt = typename HashTable::iterator;
 
-static constexpr size_t kMinCap = 1;
-static constexpr double kLirCoeff = 0.8;
-static constexpr double kHirCoeff = 0.2;
+  static constexpr size_t kMinCap = 1;
+  static constexpr double kLirCoeff = 0.8;
+  static constexpr double kHirCoeff = 0.2;
 
-size_t lir_sz_ = 0;
-size_t lir_cap_;
-size_t hir_sz_ = 0;
-size_t hir_cap_;
-size_t cache_cap_;
+  size_t lir_sz_ = 0;
+  size_t lir_cap_;
+  size_t hir_sz_ = 0;
+  size_t hir_cap_;
+  size_t cache_cap_;
 
-CacheList cache_;
-Queue queue_;
-HashTable data_base_;
+  CacheList cache_;
+  Queue queue_;
+  HashTable data_base_;
 
-// =============================== ALGORITHM ================================
-Tp EditExistingNode(const Key& key, HashTableIt& hash_it) {
-    ElInfo& el_info = hash_it->second;;
+  // =============================== ALGORITHM ================================
+  Tp EditExistingNode(const Key& key, HashTableIt& hash_it) {
+    ElInfo& el_info = hash_it->second;
+    ;
 
-    switch(el_info.node_type) {
-        case NodeType::kLir:
-            return LirHit(el_info);
-        case NodeType::kHir:
-            return HirHit(key, el_info);
-        case NodeType::kNonRes:
-            return NonResHit(key, el_info);
-        default:
-            break;
+    switch (el_info.node_type) {
+      case NodeType::kLir:
+        return LirHit(el_info);
+      case NodeType::kHir:
+        return HirHit(key, el_info);
+      case NodeType::kNonRes:
+        return NonResHit(key, el_info);
+      default:
+        break;
     }
 
     return {};
-}
+  }
 
-Tp LirHit(ElInfo& el_info) {
+  Tp LirHit(ElInfo& el_info) {
     auto cache_it = el_info.cache_it;
 
     cache_.splice(cache_.begin(), cache_, cache_it);
@@ -117,37 +113,37 @@ Tp LirHit(ElInfo& el_info) {
     StackPruning();
 
     return cache_it->val;
-}
+  }
 
-void StackPruning() {
+  void StackPruning() {
     auto cache_it = std::prev(cache_.end());
 
     while (!cache_.empty() && cache_it->node_type != NodeType::kLir) {
-        Key current_key = cache_it->key;
+      Key current_key = cache_it->key;
 
-        if (cache_it->node_type == NodeType::kNonRes) {
-            data_base_.erase(current_key);
-        } else {
-            data_base_[cache_it->key].cache_it = cache_.end();
-        }
+      if (cache_it->node_type == NodeType::kNonRes) {
+        data_base_.erase(current_key);
+      } else {
+        data_base_[cache_it->key].cache_it = cache_.end();
+      }
 
-        cache_it = std::prev(cache_it);
+      cache_it = std::prev(cache_it);
 
-        cache_.pop_back();
+      cache_.pop_back();
     }
-}
+  }
 
-Tp HirHit(const Key& key, ElInfo& el_info) {
+  Tp HirHit(const Key& key, ElInfo& el_info) {
     bool is_in_stack = (el_info.cache_it != cache_.end());
 
     Tp elem = (el_info.queue_it)->val;
     if (!is_in_stack) {
-        CacheNode new_lir = {key, NodeType::kHir, elem};
-        cache_.push_front(new_lir);
-        queue_.splice(queue_.end(), queue_, el_info.queue_it);
-        data_base_[key] = {NodeType::kHir, cache_.begin(), el_info.queue_it};
+      CacheNode new_lir = {key, NodeType::kHir, elem};
+      cache_.push_front(new_lir);
+      queue_.splice(queue_.end(), queue_, el_info.queue_it);
+      data_base_[key] = {NodeType::kHir, cache_.begin(), el_info.queue_it};
 
-        return elem;
+      return elem;
     }
 
     cache_.splice(cache_.begin(), cache_, el_info.cache_it);
@@ -163,39 +159,40 @@ Tp HirHit(const Key& key, ElInfo& el_info) {
     data_base_[key] = {NodeType::kLir, cache_.begin(), queue_.end()};
 
     return elem;
-}
+  }
 
-void UpdateBottomLir() {
+  void UpdateBottomLir() {
 
     if (lir_sz_ > lir_cap_) {
-        cache_.back().node_type = NodeType::kHir;
-        queue_.splice(queue_.end(), cache_, std::prev(cache_.end()));
-        ++hir_sz_;
-        --lir_sz_;
-        StackPruning();
+      cache_.back().node_type = NodeType::kHir;
+      queue_.splice(queue_.end(), cache_, std::prev(cache_.end()));
+      ++hir_sz_;
+      --lir_sz_;
+      StackPruning();
 
-        Key bottom_key = queue_.back().key;
-        data_base_[bottom_key] = {NodeType::kHir, cache_.end(), std::prev(queue_.end())};
+      Key bottom_key = queue_.back().key;
+      data_base_[bottom_key] = {NodeType::kHir, cache_.end(),
+                                std::prev(queue_.end())};
 
-        if (hir_sz_ > hir_cap_) {
-           ReleaseHirList();
-        }
+      if (hir_sz_ > hir_cap_) {
+        ReleaseHirList();
+      }
     }
-}
+  }
 
-Tp NonResHit(const Key& key, ElInfo& el_info) {
+  Tp NonResHit(const Key& key, ElInfo& el_info) {
     ++(this->misses_count_);
 
     Tp elem = this->slow_get_page_(key);
 
     if (el_info.cache_it != cache_.end()) {
-        *(el_info.cache_it) = {key, NodeType::kLir, elem};
-        cache_.splice(cache_.begin(), cache_, el_info.cache_it);
-    } else if (el_info.queue_it != queue_.end()){
-        cache_.splice(cache_.begin(), queue_, el_info.queue_it);
-        cache_.front().node_type = NodeType::kLir;
+      *(el_info.cache_it) = {key, NodeType::kLir, elem};
+      cache_.splice(cache_.begin(), cache_, el_info.cache_it);
+    } else if (el_info.queue_it != queue_.end()) {
+      cache_.splice(cache_.begin(), queue_, el_info.queue_it);
+      cache_.front().node_type = NodeType::kLir;
     } else {
-        cache_.push_front(CacheNode{key, NodeType::kLir, elem});
+      cache_.push_front(CacheNode{key, NodeType::kLir, elem});
     }
 
     ++lir_sz_;
@@ -205,107 +202,135 @@ Tp NonResHit(const Key& key, ElInfo& el_info) {
     UpdateBottomLir();
 
     return elem;
-}
+  }
 
-
-Tp AbsoluteMiss(const Key& key) {
+  Tp AbsoluteMiss(const Key& key) {
     ++(this->misses_count_);
+
+    if (cache_cap_ == 1) {
+      return ReplaceOldElem(key);
+    }
 
     Tp elem = this->slow_get_page_(key);
 
     if (lir_sz_ < lir_cap_) {
-        ++lir_sz_;
-        auto new_it = cache_.emplace(cache_.begin(), CacheNode{key, NodeType::kLir, elem});
-        data_base_[key] = {NodeType::kLir, new_it, queue_.end()};
+      ++lir_sz_;
+      auto new_it =
+          cache_.emplace(cache_.begin(), CacheNode{key, NodeType::kLir, elem});
+      data_base_[key] = {NodeType::kLir, new_it, queue_.end()};
 
-        return elem;
+      return elem;
     }
 
-    auto cache_it = cache_.emplace(cache_.begin(), CacheNode{key, NodeType::kHir, elem});
-    auto queue_it = queue_.emplace(queue_.end(), CacheNode{key, NodeType::kHir, elem});
+    auto cache_it =
+        cache_.emplace(cache_.begin(), CacheNode{key, NodeType::kHir, elem});
+    auto queue_it =
+        queue_.emplace(queue_.end(), CacheNode{key, NodeType::kHir, elem});
     ++hir_sz_;
 
     data_base_[key] = {NodeType::kHir, cache_it, queue_it};
 
     if (hir_sz_ > hir_cap_) {
-        ReleaseHirList();
+      ReleaseHirList();
     }
 
     return elem;
-}
+  }
 
-void ReleaseHirList() {
+  Tp ReplaceOldElem(const Key& key) {
+
+    Tp elem = this->slow_get_page_(key);
+
+    if (cache_.empty()) {
+      CacheNode new_el = CacheNode{key, NodeType::kLir, elem};
+      cache_.push_front(new_el);
+      ++lir_sz_;
+    } else if (elem != cache_.front().val) {
+      CacheNode& front_el = cache_.front();
+      data_base_.erase(front_el.key);
+      front_el.val = elem;
+      front_el.key = key;
+    }
+
+    data_base_[key] = {NodeType::kLir, cache_.begin(), queue_.end()};
+
+    return elem;
+  }
+
+  void ReleaseHirList() {
     CacheNode& node = queue_.front();
     auto hash_it = data_base_.find(node.key);
 
-    if (hash_it != data_base_.end() && (hash_it->second).cache_it != cache_.end()) {
-        data_base_[node.key].node_type = NodeType::kNonRes;
-        data_base_[node.key].queue_it = queue_.end();
-        ElInfo& deleted_el = hash_it->second;
-        deleted_el.cache_it->node_type = NodeType::kNonRes;
+    if (hash_it != data_base_.end() &&
+        (hash_it->second).cache_it != cache_.end()) {
+      data_base_[node.key].node_type = NodeType::kNonRes;
+      data_base_[node.key].queue_it = queue_.end();
+      ElInfo& deleted_el = hash_it->second;
+      deleted_el.cache_it->node_type = NodeType::kNonRes;
     } else if (hash_it != data_base_.end()) {
-        data_base_.erase(hash_it);
+      data_base_.erase(hash_it);
     }
 
     queue_.pop_front();
     --hir_sz_;
-}
+  }
 
-// =============================== DUMP_HELP ================================
-void DisplayTitle(std::ostream& out) const {
+  // =============================== DUMP_HELP ================================
+  void DisplayTitle(std::ostream& out) const {
     out << "Cache Capacity: " << cache_cap_ << '\n';
-    out  << "LIR Capacity: " <<lir_cap_ << " | LIR Size: " << lir_sz_ << '\n';
+    out << "LIR Capacity: " << lir_cap_ << " | LIR Size: " << lir_sz_ << '\n';
     out << "HIR Capacity: " << hir_cap_ << " | HIR Size: " << hir_sz_ << '\n';
-}
+  }
 
-void DisplayList(std::ostream& out, const std::list<CacheNode>& list, const std::string& message) const {
+  void DisplayList(std::ostream& out, const std::list<CacheNode>& list,
+                   const std::string& message) const {
     out << message;
 
     size_t num = 1;
     for (auto it = list.begin(); it != list.end(); ++it) {
-        out << num++ << ". Key: " << it->key << " | ";
+      out << num++ << ". Key: " << it->key << " | ";
 
-        switch(it->node_type) {
-            case NodeType::kLir:
-                out << "[LIR]\n";
-                break;
-            case NodeType::kHir:
-                out << "[HIR]\n";
-                break;
-            case NodeType::kNonRes:
-                out << "[Non Res]\n";
-                break;
-            default:
-                break;
-        }
+      switch (it->node_type) {
+        case NodeType::kLir:
+          out << "[LIR]\n";
+          break;
+        case NodeType::kHir:
+          out << "[HIR]\n";
+          break;
+        case NodeType::kNonRes:
+          out << "[Non Res]\n";
+          break;
+        default:
+          break;
+      }
     }
-}
+  }
 
-void DisplayDatabase(std::ostream& out) const {
+  void DisplayDatabase(std::ostream& out) const {
     out << "\n--- DATA BASE ---\n";
     size_t num = 1;
 
     for (auto it = data_base_.begin(); it != data_base_.end(); ++it) {
       out << num++ << ". Key: " << it->first << " --> ";
 
-      switch((it->second).node_type) {
+      switch ((it->second).node_type) {
         case NodeType::kLir:
-            out << "[LIR]\n";
-            break;
+          out << "[LIR]\n";
+          break;
         case NodeType::kHir:
-            out << "[HIR]\n";
-            break;
+          out << "[HIR]\n";
+          break;
         case NodeType::kNonRes:
-            out << "[Non Res]\n";
-            break;
+          out << "[Non Res]\n";
+          break;
         default:
-            break;
+          break;
+      }
     }
   }
-}
 
-// ==========================================================================
+  // ==========================================================================
 };
-} // namespace cache
+}  // namespace cache
 
 #endif
