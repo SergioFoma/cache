@@ -1,11 +1,9 @@
 {
     "cache": [
+        {"name" : "lfu",
+         "size" : 50},
         {"name" : "lru",
-         "size" : 10},
-        {"name" : "arc",
-         "size" : 15},
-        {"name" : "lirs",
-         "size" : 50}
+         "size" : 150}
     ],
     "dump" : true
 }

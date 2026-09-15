@@ -4,6 +4,7 @@
 #include <cassert>
 #include <iomanip>
 #include <memory>
+#include <ranges>
 #include <stdexcept>
 #include <utility>
 #include <vector>
@@ -52,9 +53,9 @@ class CacheHierarchy {
     assert(!cache_layers.empty());
 
     auto next_loader = std::move(slow_get_page);
-    for (auto it = cache_layers.crbegin(); it != cache_layers.crend(); ++it) {
-      auto layer =
-          GetCacheByEnum(it->first, it->second, std::move(next_loader));
+    for (const auto& cache_layer : std::ranges::reverse_view(cache_layers)) {
+      auto layer = GetCacheByEnum(cache_layer.first, cache_layer.second,
+                                  std::move(next_loader));
       auto* next_cache = layer.get();
       cache_vector_.push_back(std::move(layer));
 
@@ -78,6 +79,8 @@ class CacheHierarchy {
       ++i;
     }
   }
+
+  size_t GetCacheMissCount() { return cache_vector_[0]->GetCacheMissCount(); }
 };
 }  // namespace cache
 
