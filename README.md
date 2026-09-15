@@ -28,7 +28,7 @@
 |    │    │    ├──📄cache_algorithm.cpp   # Unit-tests
 |    │    │    ├──📄gen_test.cpp          # Cache misses test generator
 │    │    ├──📄main.cpp                   # Main
-|    │    └──📄parser.hpp                 # Обработка входных данных
+|    │    └──📄parser.cpp                 # Обработка входных данных
 │    ├──📂tests                           # Сгенерированные данные для сравнения cache misses
 │    ├──📂config
 |    │    └──📄config.json                # Задание иерархии кешей
