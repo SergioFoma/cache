@@ -1,51 +1,55 @@
-#include <cstdint>
+#include <CLI/CLI.hpp>
 #include <cstdio>
 #include <exception>
-#include <fstream>
 #include <iostream>
+#include <stdexcept>
+#include <string>
 
-#include "cache_algorithm/arc.hpp"
 #include "cache_algorithm/belady_cache.hpp"
-#include "cache_algorithm/lfu_cache.hpp"
-#include "cache_algorithm/lru_cache.hpp"
-#include "cache_algorithm/two_queues.hpp"
 #include "cache_hierarchy.hpp"
 #include "parser.hpp"
 
-int main() {
+const cache::loader<int, int> kPseudoLoader = [](int key) {
+  return key;
+};
+
+int main(int argc, char** argv) {
+  CLI::App app{"Cache task from undergraduate C++ course"};
+  argv = app.ensure_utf8(argv);
+
+//                  ,_     _
+//                  |\\_,-~/
+//                  / _  _ |    ,--.
+//                 (  @  @ )   / ,-'
+//                  \  _T_/-._( (
+//                  /         `. \
+//                 |         _  \ |
+//                  \ \ ,  /      |
+//                   || |-_\__   /
+//                  ((_/`(____,-'
+// Potentially we can add json parser to configure cache more "customizable".
+// But for now we decided to skip this stage to satisfy requirements.
+// And also we have paws instead of arms=)
+  std::string config_filename = "config/config.txt";
+  app.add_option("-f,--file,file", config_filename, "Config");
+  CLI11_PARSE(app, argc, argv);
+
   try {
-    constexpr size_t kCap = 150;
+    cache::ConfigTxt config(config_filename);
 
-    std::vector<int> test = cache::ReadTestsData("tests/test.txt");
-    cache::Config config("config/config.json");
-
-    cache::CacheHierarchy<int, int> cache_hierarchy(
-        config, [](int key) { return key; });
-    cache::Belady<int, int> cache_bel(kCap, [](int key) { return key; }, test);
-    cache::TwoQueues<int, int> cache_2q(kCap, [](int key) { return key; });
-    cache::Lru<int, int> cache_lru(kCap, [](int key) { return key; });
-    cache::Lfu<int, int> cache_lfu(kCap, [](int key) { return key; });
-    cache::Arc<int, int> cache_arc(kCap, [](int key) { return key; });
-    cache::Lirs<int, int> cache_lirs(kCap, [](int key) { return key; });
-
-    for (auto key : test) {
-      cache_hierarchy.LookUpUpdate(key);
-      cache_bel.LookUpUpdate(key);
-      cache_2q.LookUpUpdate(key);
-      cache_lru.LookUpUpdate(key);
-      cache_lfu.LookUpUpdate(key);
-      cache_arc.LookUpUpdate(key);
-      cache_lirs.LookUpUpdate(key);
+    size_t cache_capacity = 0;
+    if (!(std::cin >> cache_capacity)) {
+      throw std::runtime_error("Couldn't read cache capacity");
     }
 
-    std::cout << "Cache Hierarchy: " << cache_hierarchy.GetCacheMissCount() << "\n";
-    std::cout << "Belady Cache: " << cache_bel.GetCacheMissCount() << '\n';
-    std::cout << "2Q: " << cache_2q.GetCacheMissCount() << '\n';
-    std::cout << "LRU: " << cache_lru.GetCacheMissCount() << '\n';
-    std::cout << "LFU: " << cache_lfu.GetCacheMissCount() << '\n';
-    std::cout << "ARC: " << cache_arc.GetCacheMissCount() << '\n';
-    std::cout << "LIRS: " << cache_lirs.GetCacheMissCount() << '\n';
+    auto input_data = cache::ReadTestsData(std::cin);
 
+    cache::CacheHierarchy<int, int> cache_hierarchy(cache_capacity, config,
+                                                    kPseudoLoader);
+    for (const auto& input : input_data) {
+      cache_hierarchy.LookUpUpdate(input);
+    }
+    std::cout << cache_hierarchy.GetCacheHitCount() << "\n";
   } catch (const std::exception& ex) {
     std::cerr << ex.what();
   }

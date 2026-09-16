@@ -14,8 +14,8 @@ using loader = std::function<Tp(const Key&)>;
 
 enum class type { kLru, kArc, kTwoQueues, kLfu, kLirs, kBelady };
 const std::unordered_map<std::string, type> kStringToEnumTable = {
-    {"lru", type::kLru}, {"arc", type::kArc},   {"2q", type::kTwoQueues},
-    {"lfu", type::kLfu}, {"lirs", type::kLirs}, {"belady", type::kBelady}};
+    {"LRU", type::kLru}, {"ARC", type::kArc},   {"2Q", type::kTwoQueues},
+    {"LFU", type::kLfu}, {"LIRS", type::kLirs}, {"BELADY", type::kBelady}};
 
 template <typename Key, typename Tp>
 class Cache {
@@ -40,6 +40,7 @@ class Cache {
   // getters
   size_t GetCacheMissCount() const { return misses_count_; };
   size_t GetAccessCount() const { return access_count_; };
+  size_t GetCacheHitCount() const { return access_count_ - misses_count_; };
 
   virtual ~Cache() = default;
 };

@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 # Многоуровневая система кеширования ⚡
+=======
+# Cache 
+This is C++ Vladimirov task. 
+Collaborator SergioFoma.
+>>>>>>> 3e35ba5 (Add comma)
 
 ![C++](https://img.shields.io/badge/C++-20-blue?logo=cplusplus)
 ![CMake](https://img.shields.io/badge/CMake-3.11-064F8C?logo=cmake)

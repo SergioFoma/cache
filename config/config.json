@@ -1,9 +1,8 @@
 {
     "cache": [
-        {"name" : "lfu",
+        {"name" : "LFU",
          "size" : 50},
-        {"name" : "lru",
+        {"name" : "LRU",
          "size" : 150}
-    ],
-    "dump" : true
+    ]
 }
