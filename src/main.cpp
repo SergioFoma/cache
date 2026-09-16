@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
 
     size_t cache_capacity = 0;
     if (!(std::cin >> cache_capacity)) {
-      throw std::runtime_error("Co")
+      throw std::runtime_error("Couldn't read cache capacity");
     }
 
     auto vec = cache::ReadTestsData(std::cin);
