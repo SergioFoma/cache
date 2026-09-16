@@ -42,11 +42,11 @@ int main(int argc, char** argv) {
       throw std::runtime_error("Couldn't read cache capacity");
     }
 
-    auto vec = cache::ReadTestsData(std::cin);
+    auto input_data = cache::ReadTestsData(std::cin);
 
     cache::CacheHierarchy<int, int> cache_hierarchy(cache_capacity, config,
                                                     kPseudoLoader);
-    for (const auto& input : vec) {
+    for (const auto& input : input_data) {
       cache_hierarchy.LookUpUpdate(input);
     }
     std::cout << cache_hierarchy.GetCacheHitCount() << "\n";
