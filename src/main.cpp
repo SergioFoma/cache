@@ -3,12 +3,8 @@
 #include <exception>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
-#include "cache_algorithm/arc.hpp"
-#include "cache_algorithm/belady_cache.hpp"
-#include "cache_algorithm/lfu_cache.hpp"
-#include "cache_algorithm/lru_cache.hpp"
-#include "cache_algorithm/two_queues.hpp"
 #include "cache_hierarchy.hpp"
 #include "parser.hpp"
 
@@ -16,36 +12,41 @@ int main() {
   try {
     constexpr size_t kCap = 150;
 
-    std::vector<int> test = cache::ReadTestsData("tests/test.txt");
+    //
+    // Чтение конфига: количество уровней и тип каждого кеша
+    //
+
     cache::Config config("config/config.json");
 
-    cache::CacheHierarchy<int, int> cache_hierarchy(
-        config, [](int key) { return key; });
-    cache::Belady<int, int> cache_bel(kCap, [](int key) { return key; }, test);
-    cache::TwoQueues<int, int> cache_2q(kCap, [](int key) { return key; });
-    cache::Lru<int, int> cache_lru(kCap, [](int key) { return key; });
-    cache::Lfu<int, int> cache_lfu(kCap, [](int key) { return key; });
-    cache::Arc<int, int> cache_arc(kCap, [](int key) { return key; });
-    cache::Lirs<int, int> cache_lirs(kCap, [](int key) { return key; });
+    //
+    // Видимо будет работать так (пример для одной итерации):
+    // 1. считывание количества уровней и схему каждого уровня (json file)
+    // 2. считывание размера кеша (размеры всех кешей равны) и количество входных данных
+    // 3. создание CacheHierarchy (capacity для каждого cache, config, slow_get_page )
+    // 4. Считывание всех данных
+    //
 
-    for (auto key : test) {
-      cache_hierarchy.LookUpUpdate(key);
-      cache_bel.LookUpUpdate(key);
-      cache_2q.LookUpUpdate(key);
-      cache_lru.LookUpUpdate(key);
-      cache_lfu.LookUpUpdate(key);
-      cache_arc.LookUpUpdate(key);
-      cache_lirs.LookUpUpdate(key);
+    std::string incoming_line;
+
+    while (std::getline(std::cin, incoming_line) && !incoming_line.empty()) {
+      std::stringstream stream(incoming_line);
+
+      size_t cache_capacities = 0;
+      size_t data_size = 0;
+      size_t key = 0;
+      stream >> cache_capacities >> data_size;
+
+      cache::CacheHierarchy<int, int> cache_hierarchy(
+        cache_capacities, config, [](int key) { return key; });
+
+      while (stream >> key) {
+        cache_hierarchy.LookUpUpdate(key);
+      }
+
+      // В обычном режиме на выход только число хитов (HitCount)
+
+      std::cout << cache_hierarchy.GetCacheHitCount() << "\n";
     }
-
-    std::cout << "Cache Hierarchy: " << cache_hierarchy.GetCacheMissCount() << "\n";
-    std::cout << "Belady Cache: " << cache_bel.GetCacheMissCount() << '\n';
-    std::cout << "2Q: " << cache_2q.GetCacheMissCount() << '\n';
-    std::cout << "LRU: " << cache_lru.GetCacheMissCount() << '\n';
-    std::cout << "LFU: " << cache_lfu.GetCacheMissCount() << '\n';
-    std::cout << "ARC: " << cache_arc.GetCacheMissCount() << '\n';
-    std::cout << "LIRS: " << cache_lirs.GetCacheMissCount() << '\n';
-
   } catch (const std::exception& ex) {
     std::cerr << ex.what();
   }

@@ -81,6 +81,8 @@ class CacheHierarchy {
   }
 
   size_t GetCacheMissCount() { return cache_vector_[0]->GetCacheMissCount(); }
+  size_t GetAccessCount() { return cache_vector_[0]->GetAccessCount(); }
+  size_t GetCacheHitCount() { return GetAccessCount() - GetCacheMissCount(); }
 };
 }  // namespace cache
 
