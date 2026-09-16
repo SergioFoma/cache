@@ -48,13 +48,36 @@ class CacheHierarchy {
   };
 
  public:
-  explicit CacheHierarchy(const Config& config, loader<Key, Tp> slow_get_page) {
+  // Using JSON constructor, you can specify all cache_level cache sizes
+  explicit CacheHierarchy(const ConfigJson& config,
+                          loader<Key, Tp> slow_get_page) {
     const auto& cache_layers = config.GetCacheHierarchy();
     assert(!cache_layers.empty());
 
     auto next_loader = std::move(slow_get_page);
-    for (const auto& cache_layer : std::ranges::reverse_view(cache_layers)) {
-      auto layer = GetCacheByEnum(cache_layer.first, cache_layer.second,
+
+    for (const auto& layer_info : std::ranges::reverse_view(cache_layers)) {
+      auto layer = GetCacheByEnum(layer_info.first, layer_info.second,
+                                  std::move(next_loader));
+      auto* next_cache = layer.get();
+      cache_vector_.push_back(std::move(layer));
+
+      next_loader = [next_cache](const Key& key) -> Tp {
+        return next_cache->LookUpUpdate(key);
+      };
+    }
+
+  }
+
+  // TXT constructor sucks
+  explicit CacheHierarchy(size_t cap, const ConfigTxt& config,
+                          loader<Key, Tp> slow_get_page) {
+    const auto& cache_layers = config.GetCacheHierarchy();
+    assert(!cache_layers.empty());
+
+    auto next_loader = std::move(slow_get_page);
+    for (const auto& layer_info : std::ranges::reverse_view(cache_layers)) {
+      auto layer = GetCacheByEnum(layer_info, cap,
                                   std::move(next_loader));
       auto* next_cache = layer.get();
       cache_vector_.push_back(std::move(layer));

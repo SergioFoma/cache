@@ -11,6 +11,8 @@
 
 namespace cache {
 
+// ============================== JSON PARSER =================================
+
 namespace {
 std::vector<std::pair<type, size_t>> ParseCache(nlohmann::json& json_data) {
   auto& hierarchy_config = json_data["cache"];
@@ -25,7 +27,7 @@ std::vector<std::pair<type, size_t>> ParseCache(nlohmann::json& json_data) {
 
     auto ht_name_it = kStringToEnumTable.find(name_it->get_ref<std::string&>());
     if (ht_name_it == kStringToEnumTable.end())
-      throw std::runtime_error{"Incorrect configuration format."};
+      throw std::runtime_error{"Incorrect cache name."};
 
     auto size_it = cache_layer.find("size");
     if ((size_it == cache_layer.end()) || !size_it->is_number_unsigned())
@@ -38,43 +40,57 @@ std::vector<std::pair<type, size_t>> ParseCache(nlohmann::json& json_data) {
 
   return hierarchy;
 }
-
-bool ParseIsDump(nlohmann::json& json_data) {
-  auto& dump_config = json_data["dump"];
-  if (!dump_config.is_boolean())
-    throw std::runtime_error{"Incorrect configuration format."};
-
-  return dump_config.get<bool>();
-}
 }  // namespace
 
-void Config::ReadConfig() {
+void ConfigJson::ReadConfig() {
 
   auto cache_it = json_data_.find("cache");
   if (cache_it != json_data_.end()) {
     hierarchy_ = ParseCache(json_data_);
   }
+}
 
-  auto dump_it = json_data_.find("dump");
-  if (dump_it != json_data_.end()) {
-    is_dump_enabled_ = ParseIsDump(json_data_);
+// ================================= TXT PARSER ===============================
+
+void ConfigTxt::ReadConfig() {
+
+  size_t layer_amount = 0;
+  if (!(txt_file_ >> layer_amount))
+    throw std::runtime_error("Incorrect cache format");
+  if (!layer_amount)
+    throw std::runtime_error("Layer amount can't be zero");
+
+  for (size_t i = 0; i < layer_amount; ++i) {
+    std::string tmp_str;
+
+    if ((!(txt_file_ >> tmp_str)))
+      throw std::runtime_error("Couldn't read cache name");
+
+    auto ht_name_it = kStringToEnumTable.find(tmp_str);
+    if (ht_name_it == kStringToEnumTable.end())
+      throw std::runtime_error{"Incorrect cache name"};
+
+    hierarchy_.push_back(ht_name_it->second);
   }
 }
 
-std::vector<int> ReadTestsData(const std::string& file_name) {
+// =============================== TEST READER ================================
 
-  std::ifstream test_file{file_name, std::ofstream::out};
-  size_t count{};
+std::vector<int> ReadTestsData(std::istream& in) {
+
+  size_t count = 0;
   int key = 0;
   std::vector<int> keys;
 
-  test_file >> count;
+  if (!(in >> count))
+    throw std::runtime_error("Incorrect test format");
+
   for (size_t i = 0; i < count; ++i) {
-    test_file >> key;
+    if (!(in >> key))
+      throw std::runtime_error("Incorrect test format");
     keys.push_back(key);
   }
 
   return keys;
 }
-
 }  // namespace cache

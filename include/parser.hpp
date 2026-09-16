@@ -12,23 +12,12 @@
 
 namespace cache {
 
-std::vector<int> ReadTestsData(const std::string& file_name);
+std::vector<int> ReadTestsData(std::istream& in);
 
-const std::vector<std::pair<type, size_t>> kDefaultCacheConfiguration = {
-    {type::kLru, 10}};
-
-class Config {
- private:
-  std::fstream json_file_;
-  nlohmann::json json_data_;
-
-  std::vector<std::pair<type, size_t>> hierarchy_{kDefaultCacheConfiguration};
-  bool is_dump_enabled_{false};
-
-  void ReadConfig();
-
+// ============================== JSON PARSER =================================
+class ConfigJson {
  public:
-  explicit Config(const std::string& file_name) {
+  explicit ConfigJson(const std::string& file_name) {
     json_file_.open(file_name);
     if (!json_file_.is_open())
       throw std::runtime_error{"No such file.\n"};
@@ -37,10 +26,43 @@ class Config {
     ReadConfig();
   };
 
-  bool GetIsDumpEnabled() const { return is_dump_enabled_; }
   const std::vector<std::pair<type, size_t>>& GetCacheHierarchy() const {
     return hierarchy_;
   }
+
+ private:
+  std::ifstream json_file_;
+  nlohmann::json json_data_;
+
+  std::vector<std::pair<type, size_t>> hierarchy_;
+
+  void ReadConfig();
+};
+
+// ================================= TXT PARSER ===============================
+class ConfigTxt {
+ public:
+  explicit ConfigTxt(const std::string& file_name) {
+    txt_file_.open(file_name);
+    if (!txt_file_.is_open())
+      throw std::runtime_error{"Could't read cache capacity"};
+
+    ReadConfig();
+    txt_file_ >> std::ws;
+    if (!txt_file_.eof()) {
+      std::cerr << "Warning : extra data in txt file.\n";
+    }
+  }
+
+  // getters
+  const std::vector<type>& GetCacheHierarchy() const { return hierarchy_; }
+
+ private:
+  std::ifstream txt_file_;
+
+  std::vector<type> hierarchy_;
+
+  void ReadConfig();
 };
 }  // namespace cache
 

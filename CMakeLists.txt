@@ -14,10 +14,15 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 FetchContent_Declare(
   json
-  URL https://github.com/nlohmann/json/archive/refs/heads/develop.zip
+  URL https://github.com/nlohmann/json/archive/refs/tags/v3.12.0.zip
 )
 
-FetchContent_MakeAvailable(googletest json)
+FetchContent_Declare(
+  cli11
+  URL https://github.com/CLIUtils/CLI11/archive/refs/tags/v2.7.2.zip
+)
+
+FetchContent_MakeAvailable(googletest json cli11)
 
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL
@@ -30,7 +35,7 @@ set(CMAKE_CXX_FLAGS "-O2 -Wall -Wextra")
 set(TARGET cache)
 add_executable(${TARGET})
 target_include_directories(${TARGET} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(${TARGET} PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(${TARGET} PRIVATE nlohmann_json::nlohmann_json CLI11::CLI11)
 
 # ===== end-to-end gen =====
 set(GEN_TEST_TARGET gen_test)
