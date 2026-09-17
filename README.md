@@ -34,7 +34,8 @@ Collaborator SergioFoma.
 |    │    └──📄parser.cpp                 # Обработка входных данных
 │    ├──📂tests                           # Сгенерированные данные для сравнения cache misses
 │    ├──📂config
-|    │    └──📄config.json                # Задание иерархии кешей
+│    │    ├──📄config.txt                 # Задание иерархии кешей в текстовом виде
+|    │    └──📄config.json                # Задание иерархии кешей через json формат
 
 
 ```
@@ -74,20 +75,24 @@ cmake --build Build
 
 **Работа с программой:**
 
+- выводит в stdout help программы:
 ```bash
-Build/gen_test <count> <seed> <file_path>
+Build/cache --help
 ```
-- начинает генерацию тестов в папке ./tests
 
+- начинает чтение входных данных из stdin: размер кеша, размер данных и далее данные:
 ```bash
 Build/cache
 ```
-- считывает сгенерировнные тесты и выводит подсчет cache misses для каждого алгоритма
+- пример:
+```bash
+2 4 1 2 1 2
+```
 
+- запускает Google Tests (83 теста)
 ```bash
 Build/cache_algorithm_test
 ```
-- запускает Google Tests (83 теста)
 
 ## Collaborators 👤
 
