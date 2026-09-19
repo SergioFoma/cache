@@ -1,1 +1,1 @@
-1 LIRS
+2 LFU ARC

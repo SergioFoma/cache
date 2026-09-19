@@ -40,7 +40,6 @@ target_link_libraries(${TARGET} PRIVATE nlohmann_json::nlohmann_json CLI11::CLI1
 # ===== end-to-end gen =====
 set(GEN_TEST_TARGET gen_test)
 add_executable(${GEN_TEST_TARGET})
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # ===== tests =====
 enable_testing()
@@ -48,7 +47,10 @@ enable_testing()
 include(GoogleTest)
 
 set(TEST_TARGET cache_algorithm_test)
-add_executable(${TEST_TARGET} ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/cache_algorithm.cpp)
+add_executable(${TEST_TARGET})
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src)
+
 target_include_directories(${TEST_TARGET} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(cache_algorithm_test PRIVATE GTest::gtest_main)
 

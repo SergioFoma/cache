@@ -16,7 +16,7 @@
 namespace cache {
 
 template <typename Key, typename Tp>
-class Belady : public Cache<Key, Tp> {
+class Belady final : public Cache<Key, Tp> {
  public:
   explicit Belady(size_t capacity, loader<Key, Tp> slow_get_page,
                   std::vector<Key> full_cache_history)

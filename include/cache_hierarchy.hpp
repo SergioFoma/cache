@@ -24,6 +24,7 @@ class CacheHierarchy {
  private:
   // the input layer is the last one
   std::vector<std::unique_ptr<Cache<Key, Tp>>> cache_vector_;
+  size_t access_count_{};
 
   std::unique_ptr<Cache<Key, Tp>> GetCacheByEnum(
       type cache_type, size_t cap, loader<Key, Tp> slow_get_page) {
@@ -89,6 +90,7 @@ class CacheHierarchy {
   }
 
   Tp LookUpUpdate(const Key& key) {
+    ++access_count_;
     return cache_vector_.back()->LookUpUpdate(key);
   }
 
@@ -104,7 +106,7 @@ class CacheHierarchy {
   }
 
   size_t GetCacheMissCount() { return cache_vector_[0]->GetCacheMissCount(); }
-  size_t GetAccessCount() { return cache_vector_[0]->GetAccessCount(); }
+  size_t GetAccessCount() { return access_count_; }
   size_t GetCacheHitCount() { return GetAccessCount() - GetCacheMissCount(); }
 };
 }  // namespace cache
