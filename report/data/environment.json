@@ -1,0 +1,25 @@
+{
+  "base_commit": "21e58781f9e73f56b369835f27e8c5a08dc81b11",
+  "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+  "flags": [
+    "-std=c++20",
+    "-O2",
+    "-Wall",
+    "-Wextra"
+  ],
+  "python": "3.12.14",
+  "platform": "macOS-27.0-arm64-arm-64bit",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "main_capacity": 100
+}

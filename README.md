@@ -3,6 +3,13 @@
 This is C++ Vladimirov task.
 Collaborator SergioFoma.
 
+## Лабораторная работа
+
+[Отчёт по исследованию иерархии кешей](report/REPORT.md): десять датасетов с разными
+распределениями и порядком запросов, гистограммы хитов, примеры преимущества каждого
+алгоритма, сравнение ёмкостей и двухуровневых иерархий. Данные и результаты находятся
+в `report/data/`, воспроизводимый эксперимент — в `experiments/run.py`.
+
 ![C++](https://img.shields.io/badge/C++-20-blue?logo=cplusplus)
 ![CMake](https://img.shields.io/badge/CMake-3.11-064F8C?logo=cmake)
 ![GoogleTest](https://img.shields.io/badge/GoogleTest-passing-4285F4?logo=googletest&logoColor=white)

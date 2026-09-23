@@ -1,0 +1,12 @@
+{
+  "cache": [
+    {
+      "name": "LRU",
+      "size": 50
+    },
+    {
+      "name": "LRU",
+      "size": 50
+    }
+  ]
+}

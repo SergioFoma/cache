@@ -1,0 +1,82 @@
+[
+  {
+    "dataset": "uniform",
+    "title": "Равномерное распределение",
+    "seed": 0,
+    "requests": 20000,
+    "unique_keys": 400,
+    "sha256": "ea3d096aebce7975a63856820a0ba1ac059153a444b28b994331b425c064cef1"
+  },
+  {
+    "dataset": "zipf",
+    "title": "Распределение Ципфа",
+    "seed": 0,
+    "requests": 20000,
+    "unique_keys": 398,
+    "sha256": "e5fb8cabf5f966c75d210f9f5f4c7f05fa192105378fc74aa73dac8daa0609d6"
+  },
+  {
+    "dataset": "normal",
+    "title": "Дискретизированное нормальное",
+    "seed": 0,
+    "requests": 20000,
+    "unique_keys": 371,
+    "sha256": "eb7459d209300bd5e52f7ba43f8625d33ff4bab67dde1bcbf79b7c12a6e6ecab"
+  },
+  {
+    "dataset": "scan",
+    "title": "Однократный проход",
+    "seed": 0,
+    "requests": 20000,
+    "unique_keys": 20000,
+    "sha256": "2db9482db4398da0789c85f794de0a4b2c60bc29f64ef311aa4d718cc74f477f"
+  },
+  {
+    "dataset": "lru",
+    "title": "Смена повторяемых блоков",
+    "seed": 0,
+    "requests": 25952,
+    "unique_keys": 4048,
+    "sha256": "cf491b1d28bc1fc762488ba3bf51f953f2dd14682e716efecdabaae34b6710c6"
+  },
+  {
+    "dataset": "lfu",
+    "title": "Популярное ядро и сканирование",
+    "seed": 0,
+    "requests": 16946,
+    "unique_keys": 1709,
+    "sha256": "e55e5b7d90a2b2eb3f45a17534ae0cf32d477751f40d0bef487905afec0aa88e"
+  },
+  {
+    "dataset": "arc",
+    "title": "Редкие обращения к сменяемому ядру",
+    "seed": 0,
+    "requests": 22919,
+    "unique_keys": 9831,
+    "sha256": "9247aa085a079435b02fbd5210462d7920dfc9ca2ad87f4eaeeda930e1376a68"
+  },
+  {
+    "dataset": "twoq",
+    "title": "Частые обращения к сменяемому ядру",
+    "seed": 0,
+    "requests": 29740,
+    "unique_keys": 11020,
+    "sha256": "c7b0539a814ec3dae468b0623fb2a4e3a2208a4bfb14dbfdda0d6f267acebdd8"
+  },
+  {
+    "dataset": "lirs",
+    "title": "Циклический блок больше кеша",
+    "seed": 0,
+    "requests": 31072,
+    "unique_keys": 4138,
+    "sha256": "1adc279d0400849a53f23626d710d71ad87281ae1dd4eab06acd686520ebcc66"
+  },
+  {
+    "dataset": "belady",
+    "title": "Цикл из 101 ключа",
+    "seed": 0,
+    "requests": 20200,
+    "unique_keys": 101,
+    "sha256": "600454d355619be8a6965402857bdc299f1bc4ae7b4eb7158f2b1c50d4b7443a"
+  }
+]
