@@ -1,82 +1,1974 @@
-[
-  {
-    "dataset": "uniform",
-    "title": "Равномерное распределение",
-    "seed": 0,
-    "requests": 20000,
-    "unique_keys": 400,
-    "sha256": "ea3d096aebce7975a63856820a0ba1ac059153a444b28b994331b425c064cef1"
+{
+  "capacity_in_file": 100,
+  "base_key_range": [
+    0,
+    399
+  ],
+  "hotshift_key_ranges": {
+    "hotshift20": [
+      400,
+      6649
+    ],
+    "hotshift": [
+      400,
+      3529
+    ],
+    "hotshift400": [
+      400,
+      1659
+    ]
   },
-  {
-    "dataset": "zipf",
-    "title": "Распределение Ципфа",
-    "seed": 0,
-    "requests": 20000,
-    "unique_keys": 398,
-    "sha256": "e5fb8cabf5f966c75d210f9f5f4c7f05fa192105378fc74aa73dac8daa0609d6"
+  "warmup_requests": 5000,
+  "measured_requests": 20000,
+  "datasets_per_kind": 40,
+  "zipf_exponent": 1.2,
+  "normal_mean": 199.5,
+  "normal_standard_deviation": 60,
+  "repeat_probability": 0.8,
+  "repeat_new_key_distribution": "uniform(keys=0..399)",
+  "hotshift_windows": {
+    "hotshift20": 20,
+    "hotshift": 80,
+    "hotshift400": 400
   },
-  {
-    "dataset": "normal",
-    "title": "Дискретизированное нормальное",
-    "seed": 0,
-    "requests": 20000,
-    "unique_keys": 371,
-    "sha256": "eb7459d209300bd5e52f7ba43f8625d33ff4bab67dde1bcbf79b7c12a6e6ecab"
+  "hotshift_set_sizes": {
+    "hotshift20": 5,
+    "hotshift": 10,
+    "hotshift400": 20
   },
-  {
-    "dataset": "scan",
-    "title": "Однократный проход",
-    "seed": 0,
-    "requests": 20000,
-    "unique_keys": 20000,
-    "sha256": "2db9482db4398da0789c85f794de0a4b2c60bc29f64ef311aa4d718cc74f477f"
-  },
-  {
-    "dataset": "lru",
-    "title": "Смена повторяемых блоков",
-    "seed": 0,
-    "requests": 25952,
-    "unique_keys": 4048,
-    "sha256": "cf491b1d28bc1fc762488ba3bf51f953f2dd14682e716efecdabaae34b6710c6"
-  },
-  {
-    "dataset": "lfu",
-    "title": "Популярное ядро и сканирование",
-    "seed": 0,
-    "requests": 16946,
-    "unique_keys": 1709,
-    "sha256": "e55e5b7d90a2b2eb3f45a17534ae0cf32d477751f40d0bef487905afec0aa88e"
-  },
-  {
-    "dataset": "arc",
-    "title": "Редкие обращения к сменяемому ядру",
-    "seed": 0,
-    "requests": 22919,
-    "unique_keys": 9831,
-    "sha256": "9247aa085a079435b02fbd5210462d7920dfc9ca2ad87f4eaeeda930e1376a68"
-  },
-  {
-    "dataset": "twoq",
-    "title": "Частые обращения к сменяемому ядру",
-    "seed": 0,
-    "requests": 29740,
-    "unique_keys": 11020,
-    "sha256": "c7b0539a814ec3dae468b0623fb2a4e3a2208a4bfb14dbfdda0d6f267acebdd8"
-  },
-  {
-    "dataset": "lirs",
-    "title": "Циклический блок больше кеша",
-    "seed": 0,
-    "requests": 31072,
-    "unique_keys": 4138,
-    "sha256": "1adc279d0400849a53f23626d710d71ad87281ae1dd4eab06acd686520ebcc66"
-  },
-  {
-    "dataset": "belady",
-    "title": "Цикл из 101 ключа",
-    "seed": 0,
-    "requests": 20200,
-    "unique_keys": 101,
-    "sha256": "600454d355619be8a6965402857bdc299f1bc4ae7b4eb7158f2b1c50d4b7443a"
-  }
-]
+  "hotshift_probability": 0.8,
+  "mixed_block_size": 2000,
+  "mixed_phases": [
+    "zipf",
+    "hotshift80"
+  ],
+  "mixed_hotshift_window": 80,
+  "mixed_groups_per_block": 25,
+  "mixed_hotshift_first_key": 400,
+  "mixed_hotshift_set_size": 10,
+  "mixed_hotshift_probability": 0.8,
+  "mixed_calm_distribution": "zipf(exponent=1.2, keys=0..399)",
+  "mixed_hotshift_background": "uniform(keys=0..399)",
+  "datasets": [
+    {
+      "file": "uniform_00.txt",
+      "kind": "uniform",
+      "seed": 0,
+      "sha256": "f25645fdee036f908e2822eccd12b40eafb8da05081e76f63e9fff18ceead0a2"
+    },
+    {
+      "file": "uniform_01.txt",
+      "kind": "uniform",
+      "seed": 1,
+      "sha256": "5d157c17665c89969d54345e683a8ea22603003ac75bb5469d6f1618c6ba24c4"
+    },
+    {
+      "file": "uniform_02.txt",
+      "kind": "uniform",
+      "seed": 2,
+      "sha256": "d048fe9ede34385d2dcba08184836f83137f55c656fec6f83af01aab05df5419"
+    },
+    {
+      "file": "uniform_03.txt",
+      "kind": "uniform",
+      "seed": 3,
+      "sha256": "f7148d83bcb7ef3fade8f129af26cbf15c2216bfc6ef13b599b25742453e5918"
+    },
+    {
+      "file": "uniform_04.txt",
+      "kind": "uniform",
+      "seed": 4,
+      "sha256": "a552b7780c06a8ede01fb9ea1d18e5326841b546344c15fbc3e38cc13d04881d"
+    },
+    {
+      "file": "uniform_05.txt",
+      "kind": "uniform",
+      "seed": 5,
+      "sha256": "9ff8d2a64fe44b5b3666e3a01853f33d505cd0fd41e143ae84259b0ec2a0698b"
+    },
+    {
+      "file": "uniform_06.txt",
+      "kind": "uniform",
+      "seed": 6,
+      "sha256": "9a7022c7583acaad0b769d065de5385c8af360c045d1e645be4fc026305162af"
+    },
+    {
+      "file": "uniform_07.txt",
+      "kind": "uniform",
+      "seed": 7,
+      "sha256": "c8f607ca337c6471dd8b5ac390b864e96e0dae7af5ae2f0f4d4a8f6112b50904"
+    },
+    {
+      "file": "uniform_08.txt",
+      "kind": "uniform",
+      "seed": 8,
+      "sha256": "064593fc838c085806d43ab3ac3d19f8ea4ce7625fe1ecf49064f66830bfb7d5"
+    },
+    {
+      "file": "uniform_09.txt",
+      "kind": "uniform",
+      "seed": 9,
+      "sha256": "c56fc86546ed342993dc01bc6cfc09e5b805405f2b62909c41cd2ab2ae464061"
+    },
+    {
+      "file": "uniform_10.txt",
+      "kind": "uniform",
+      "seed": 10,
+      "sha256": "b26fef49617fa5b93e097063fc51ec523af8ac7bf02318bb99c5960960ade44b"
+    },
+    {
+      "file": "uniform_11.txt",
+      "kind": "uniform",
+      "seed": 11,
+      "sha256": "742a9df919ad49ab9778785ea532d708a4738293bafd18888d98896d9f63ebbe"
+    },
+    {
+      "file": "uniform_12.txt",
+      "kind": "uniform",
+      "seed": 12,
+      "sha256": "0c8d2e8ab3772440e80091c47933147ed8dc685a627b5b986d53992b5a6b2159"
+    },
+    {
+      "file": "uniform_13.txt",
+      "kind": "uniform",
+      "seed": 13,
+      "sha256": "d3eb5fe1f34587865f8de79fd13db1b28fc989152ffc5b8b03cc57a3e423c846"
+    },
+    {
+      "file": "uniform_14.txt",
+      "kind": "uniform",
+      "seed": 14,
+      "sha256": "5b5cac2811b40c56f606f2bd338cc4584f7c99f4ef0637258c8e78439c6ab535"
+    },
+    {
+      "file": "uniform_15.txt",
+      "kind": "uniform",
+      "seed": 15,
+      "sha256": "419c0f2bbf0a33a4068757ae6e107dfe9f5c374024d5e9049c3b290110ab6085"
+    },
+    {
+      "file": "uniform_16.txt",
+      "kind": "uniform",
+      "seed": 16,
+      "sha256": "9eb488209d7742d62d72b6e8332bf21fde015bb780c8f398da893ef0fe3514dd"
+    },
+    {
+      "file": "uniform_17.txt",
+      "kind": "uniform",
+      "seed": 17,
+      "sha256": "127ba81dbebb66ec318493cd21dc37596c4a73be7077470c6c46594c0d52125a"
+    },
+    {
+      "file": "uniform_18.txt",
+      "kind": "uniform",
+      "seed": 18,
+      "sha256": "925417022cf427ea3ae797af48f4f7bade567a4e692c5d8d66ed7878aaad25b2"
+    },
+    {
+      "file": "uniform_19.txt",
+      "kind": "uniform",
+      "seed": 19,
+      "sha256": "6e6fb1b00580bef15805f02e5298df205dcc0fd557dd21f070373e7807e2a25d"
+    },
+    {
+      "file": "uniform_20.txt",
+      "kind": "uniform",
+      "seed": 20,
+      "sha256": "2ce33e816929be587ab2e4d4080b18e8118f3f015db42ba7b120e6f1df870b3e"
+    },
+    {
+      "file": "uniform_21.txt",
+      "kind": "uniform",
+      "seed": 21,
+      "sha256": "fe5cdc3d600b86e27bf56f04c6a8b043369b09f7e1a42f3fb6faf4dff3cbc43d"
+    },
+    {
+      "file": "uniform_22.txt",
+      "kind": "uniform",
+      "seed": 22,
+      "sha256": "b439a42f2314cd729aabddd907e8b597d8c9c51189a1291ae447eb407cec6f5b"
+    },
+    {
+      "file": "uniform_23.txt",
+      "kind": "uniform",
+      "seed": 23,
+      "sha256": "d35e2e06037d5a3cc00f7e1bb712f5eb6b99ded4b95ec68d67db940ff3443a4c"
+    },
+    {
+      "file": "uniform_24.txt",
+      "kind": "uniform",
+      "seed": 24,
+      "sha256": "818c5ef8658efc33875e49ee0cc640be6b4457f9b36332a8efbfd0e90882a53f"
+    },
+    {
+      "file": "uniform_25.txt",
+      "kind": "uniform",
+      "seed": 25,
+      "sha256": "ad4294d6afa1e72338b76e2043ada3ad1c1f9aa9a1d85460dc33bdc2e8986030"
+    },
+    {
+      "file": "uniform_26.txt",
+      "kind": "uniform",
+      "seed": 26,
+      "sha256": "f1f67d052cd5b78b5c01c8e7cf4b1473f649beab25c8c509aa9a4b6f2732a45b"
+    },
+    {
+      "file": "uniform_27.txt",
+      "kind": "uniform",
+      "seed": 27,
+      "sha256": "466af3714eb638e9c84a6c082cea3dad447128d11430486c6edf025d07861b3b"
+    },
+    {
+      "file": "uniform_28.txt",
+      "kind": "uniform",
+      "seed": 28,
+      "sha256": "c0ccc2a4387ad74039ef35fa82e10c8796f8104962855a417a1b7d65df8ce790"
+    },
+    {
+      "file": "uniform_29.txt",
+      "kind": "uniform",
+      "seed": 29,
+      "sha256": "db4d20c5c0ecbc01dda29369ace4caad30b27849d2dfa335656289c75e882410"
+    },
+    {
+      "file": "uniform_30.txt",
+      "kind": "uniform",
+      "seed": 30,
+      "sha256": "140f1c19aba5e61f8a4f9ffbf2e3d2e2c76f0622d89345704e2d2d4e8a8e3e4f"
+    },
+    {
+      "file": "uniform_31.txt",
+      "kind": "uniform",
+      "seed": 31,
+      "sha256": "9955eb775902b21b728621c29082f7321b481fe69de37768278dfae6bfc58177"
+    },
+    {
+      "file": "uniform_32.txt",
+      "kind": "uniform",
+      "seed": 32,
+      "sha256": "aead46139e8d7bc03fe12ea858400b4c2d0fb3eebeb365cfabb89de92cc051c6"
+    },
+    {
+      "file": "uniform_33.txt",
+      "kind": "uniform",
+      "seed": 33,
+      "sha256": "1b4fc680c8037f7c93692f1ac4b4395892e5c1ece3db8d3889dd77cda0a413f1"
+    },
+    {
+      "file": "uniform_34.txt",
+      "kind": "uniform",
+      "seed": 34,
+      "sha256": "66092b7d7c103f51c667b5baefcaf64509cc1dfbd21be9ce8780317c54ad3573"
+    },
+    {
+      "file": "uniform_35.txt",
+      "kind": "uniform",
+      "seed": 35,
+      "sha256": "824d214f1133403fa562d090b4ec58e02dc7af1c1dddb0a217cd4b1a3de4595a"
+    },
+    {
+      "file": "uniform_36.txt",
+      "kind": "uniform",
+      "seed": 36,
+      "sha256": "5f3218488fc419572af80ac8bfff27f8cf975d4d149a3efd5c408e81df9f4613"
+    },
+    {
+      "file": "uniform_37.txt",
+      "kind": "uniform",
+      "seed": 37,
+      "sha256": "07b50c6473b8e53d2955d2190cd890b7af18f0e8cf993290b0ae5dc2ade28ade"
+    },
+    {
+      "file": "uniform_38.txt",
+      "kind": "uniform",
+      "seed": 38,
+      "sha256": "5f4a1ec991b83a02fea1f1c29b61fd321285b7d2a62e836a2e2c1cfdad8aa999"
+    },
+    {
+      "file": "uniform_39.txt",
+      "kind": "uniform",
+      "seed": 39,
+      "sha256": "5a03cfb91d5418141a95e2792e4a2d3a2303de30c944c0373c1d3e00bea5aa72"
+    },
+    {
+      "file": "zipf_00.txt",
+      "kind": "zipf",
+      "seed": 0,
+      "sha256": "14c7e58c8a3c631aa13983e963b13cb236354800a093bac6b92df9f89b15f398"
+    },
+    {
+      "file": "zipf_01.txt",
+      "kind": "zipf",
+      "seed": 1,
+      "sha256": "c8d02718b44a31921737466486e6c58da1465e939c31c34e2b2c2f2710150ad4"
+    },
+    {
+      "file": "zipf_02.txt",
+      "kind": "zipf",
+      "seed": 2,
+      "sha256": "71fa961aa107d73a3d71f4218327aa39440e56cb4109f27d31303d0036b2f7b7"
+    },
+    {
+      "file": "zipf_03.txt",
+      "kind": "zipf",
+      "seed": 3,
+      "sha256": "f4af87b0a9009f9569a7db3df1496bc74c8563e4895642a76bf785cd80ff49c1"
+    },
+    {
+      "file": "zipf_04.txt",
+      "kind": "zipf",
+      "seed": 4,
+      "sha256": "93e0241ddb361dc6822671c717ee0eec2169c7c06d467e8c10f6ea35674efdbd"
+    },
+    {
+      "file": "zipf_05.txt",
+      "kind": "zipf",
+      "seed": 5,
+      "sha256": "6ff634016ffc31c5bc62a4a1c4e2e3a34e14039c415319494da4e7a0bbaa48d0"
+    },
+    {
+      "file": "zipf_06.txt",
+      "kind": "zipf",
+      "seed": 6,
+      "sha256": "e2e23ce6267092ed9354ed96427cb7b712f0bfdcc55f2fb930bf66502f080757"
+    },
+    {
+      "file": "zipf_07.txt",
+      "kind": "zipf",
+      "seed": 7,
+      "sha256": "09ea88a3a15f3eb6460d440ca0367cbbf89bf2b088e1ecaa25908637342faf56"
+    },
+    {
+      "file": "zipf_08.txt",
+      "kind": "zipf",
+      "seed": 8,
+      "sha256": "d7a3a36772dbd45380d135b11557f5b733765782e136ada44bc98dc8243af159"
+    },
+    {
+      "file": "zipf_09.txt",
+      "kind": "zipf",
+      "seed": 9,
+      "sha256": "221ad0c0c2da6481e062406dbc4b8bab7a27f79225594be8e8dcb26e36be3763"
+    },
+    {
+      "file": "zipf_10.txt",
+      "kind": "zipf",
+      "seed": 10,
+      "sha256": "da0a29019f84ca0e5ab47f0d638d048d1d16a8070804cb941cf13eec06a1d83d"
+    },
+    {
+      "file": "zipf_11.txt",
+      "kind": "zipf",
+      "seed": 11,
+      "sha256": "5e9dd9355030e9a6df586c7814e118b3fbc577a9dfa7e56d2fb502532a79ebe1"
+    },
+    {
+      "file": "zipf_12.txt",
+      "kind": "zipf",
+      "seed": 12,
+      "sha256": "f9c4d8d16c2b77e43295f496a91cbf29c8c6dfdd62ee02b93380c9040aeacbbf"
+    },
+    {
+      "file": "zipf_13.txt",
+      "kind": "zipf",
+      "seed": 13,
+      "sha256": "92cb201c74be6f45d0daa071caba10a026025e2b545f5b53a7138ce8ff1bc4ad"
+    },
+    {
+      "file": "zipf_14.txt",
+      "kind": "zipf",
+      "seed": 14,
+      "sha256": "3d555b4c6d39e871771c9ff28e16e863deaba0eb85d0ca38c769c1c5ddc83f6b"
+    },
+    {
+      "file": "zipf_15.txt",
+      "kind": "zipf",
+      "seed": 15,
+      "sha256": "93c2cf46c24dbeb9c38aaf22ef48073361e53a59e355535cdf2ed6321b62e393"
+    },
+    {
+      "file": "zipf_16.txt",
+      "kind": "zipf",
+      "seed": 16,
+      "sha256": "b52fb2d908c31751cfa4edebe293ac472e46146f883a23a40cbab4f2d6149feb"
+    },
+    {
+      "file": "zipf_17.txt",
+      "kind": "zipf",
+      "seed": 17,
+      "sha256": "9b692d4fce8e5ffad59a07092e9aabdcb741758701ccef9ed7a4d01a0964c15b"
+    },
+    {
+      "file": "zipf_18.txt",
+      "kind": "zipf",
+      "seed": 18,
+      "sha256": "5ff912d6cfa7d4bd622218988823a3d5a1a332a1ba8312bd9c193e01da92ff8a"
+    },
+    {
+      "file": "zipf_19.txt",
+      "kind": "zipf",
+      "seed": 19,
+      "sha256": "002c06be52c0cf52d3bd8a14a0140aac4549d2d309bf7675c2ca191213ccee7f"
+    },
+    {
+      "file": "zipf_20.txt",
+      "kind": "zipf",
+      "seed": 20,
+      "sha256": "e31f552e451c6936d48408ed231504d5fb9188e504fcf4e5df6552b1affa0655"
+    },
+    {
+      "file": "zipf_21.txt",
+      "kind": "zipf",
+      "seed": 21,
+      "sha256": "4490fdedf5aef2fe048a625c7ddd442391a786c1fcf6b57f57d238b6c5bd8d12"
+    },
+    {
+      "file": "zipf_22.txt",
+      "kind": "zipf",
+      "seed": 22,
+      "sha256": "1c62ccff51bc9092101e9dc7887c5fe70a967e31cc712a283418719c4201821a"
+    },
+    {
+      "file": "zipf_23.txt",
+      "kind": "zipf",
+      "seed": 23,
+      "sha256": "5b63d383f746529d044ffb673b7df6cdb340b7136eae80cfaf6b62a257998900"
+    },
+    {
+      "file": "zipf_24.txt",
+      "kind": "zipf",
+      "seed": 24,
+      "sha256": "8a6ff8ed8c3567a7ff9d57cacc819471e6fb3b6ca7a1d5ab170aacfb4fc1aa0c"
+    },
+    {
+      "file": "zipf_25.txt",
+      "kind": "zipf",
+      "seed": 25,
+      "sha256": "7cb74773ecfc5ca5e24b006f4f5703afe39830cf74cae7dc51d6f333b4208ff7"
+    },
+    {
+      "file": "zipf_26.txt",
+      "kind": "zipf",
+      "seed": 26,
+      "sha256": "86db5fdc9b4d267299af58f276cbb0365d45e68726563ab8680d261dd3b9438c"
+    },
+    {
+      "file": "zipf_27.txt",
+      "kind": "zipf",
+      "seed": 27,
+      "sha256": "d53f0547880e3b7dac47a6b0348bb8c05e56eba776e9e75092855d80599ec634"
+    },
+    {
+      "file": "zipf_28.txt",
+      "kind": "zipf",
+      "seed": 28,
+      "sha256": "46141ed5ea11c82d074cdc1895265e929599e5b6c0a7f54e27b33ddcdecedd94"
+    },
+    {
+      "file": "zipf_29.txt",
+      "kind": "zipf",
+      "seed": 29,
+      "sha256": "c4705b0b0204902ea3bed9339206c6ff78b0fddb0daf9bc4084473ac925b13bb"
+    },
+    {
+      "file": "zipf_30.txt",
+      "kind": "zipf",
+      "seed": 30,
+      "sha256": "06fda95ee0b9b8250dbf120e9a9e8a197b82ffbfc674b0c0659a70e7fe4bfbf5"
+    },
+    {
+      "file": "zipf_31.txt",
+      "kind": "zipf",
+      "seed": 31,
+      "sha256": "2910bfdf1c96944da2b3ba63d0b76eb1c542ba349f015b7d2fe4e7dc512d7947"
+    },
+    {
+      "file": "zipf_32.txt",
+      "kind": "zipf",
+      "seed": 32,
+      "sha256": "376b3df3f5d306c1c6b3b5e71f0a47025f36ef5546775e2de3de26e1a23e322e"
+    },
+    {
+      "file": "zipf_33.txt",
+      "kind": "zipf",
+      "seed": 33,
+      "sha256": "5bfbae699658ef5d13b48ccbd4b4f28a2ffbd25db9dc464291e50eaac6f29f0f"
+    },
+    {
+      "file": "zipf_34.txt",
+      "kind": "zipf",
+      "seed": 34,
+      "sha256": "a9aae89cf4c9a1baa90ec8c1d119fbdf785532683b6cfdff78606a030be08aff"
+    },
+    {
+      "file": "zipf_35.txt",
+      "kind": "zipf",
+      "seed": 35,
+      "sha256": "1a831a6a7073dfff32f63b6f0651002f3631477aa218ed31b4de8c3514f7dc6d"
+    },
+    {
+      "file": "zipf_36.txt",
+      "kind": "zipf",
+      "seed": 36,
+      "sha256": "789db7dcd1cac5d0910b90bca9702338c491f3fff9754839b1e61e928e62b4bf"
+    },
+    {
+      "file": "zipf_37.txt",
+      "kind": "zipf",
+      "seed": 37,
+      "sha256": "4e4a6939ea161191501ad3df0b5900ddf9d8cf48838c05b6fb6813da3b2c7355"
+    },
+    {
+      "file": "zipf_38.txt",
+      "kind": "zipf",
+      "seed": 38,
+      "sha256": "1b2ed6b744e5151c8f1e18a48bdf4804fdbd7b717bab05b73a4448ec7ff50c04"
+    },
+    {
+      "file": "zipf_39.txt",
+      "kind": "zipf",
+      "seed": 39,
+      "sha256": "91f5b0789caebb539b0da7ea373fa0840f76283f1e4a754811bdee18144e1010"
+    },
+    {
+      "file": "normal_00.txt",
+      "kind": "normal",
+      "seed": 0,
+      "sha256": "86156d47fc8339aa4aeb950356d9f238120d40c08b8f3f1261939b4341dc1df4"
+    },
+    {
+      "file": "normal_01.txt",
+      "kind": "normal",
+      "seed": 1,
+      "sha256": "1bef87aaf8ca2036496f48862e34ebbdf7d26983325f7781de53c37ebd6126a5"
+    },
+    {
+      "file": "normal_02.txt",
+      "kind": "normal",
+      "seed": 2,
+      "sha256": "a8c0adff7ef9613bf36e45658c23ea6557943969082b9b0738bcded30281f5dd"
+    },
+    {
+      "file": "normal_03.txt",
+      "kind": "normal",
+      "seed": 3,
+      "sha256": "6730cab9a46a0a40263872df69502ecd16f862c6443ea680080550d3b9c3e295"
+    },
+    {
+      "file": "normal_04.txt",
+      "kind": "normal",
+      "seed": 4,
+      "sha256": "8d512f70d45d4d55629d4ff13c3dbb37c51d75a8d9956bba844c6ba72cdc0807"
+    },
+    {
+      "file": "normal_05.txt",
+      "kind": "normal",
+      "seed": 5,
+      "sha256": "60bf3798d8f0cf641f3500304dfdcfc919a0c9460e8cb3c2b8d11bc15b9434ac"
+    },
+    {
+      "file": "normal_06.txt",
+      "kind": "normal",
+      "seed": 6,
+      "sha256": "12b768a125d61d1537356a041c34d701d7b127ffdbbcae9364054656ed7930eb"
+    },
+    {
+      "file": "normal_07.txt",
+      "kind": "normal",
+      "seed": 7,
+      "sha256": "205d713ac7eb1772c66b2806a17521e4e5cd2b1167b48c308d87bb0c7bf6096c"
+    },
+    {
+      "file": "normal_08.txt",
+      "kind": "normal",
+      "seed": 8,
+      "sha256": "69cf680790bb4719152f72758113b8d7c4e573167c0b7a0805501d8559a7d0bb"
+    },
+    {
+      "file": "normal_09.txt",
+      "kind": "normal",
+      "seed": 9,
+      "sha256": "703e6cd561d5fdcd4e376ac3d5b259fd8cd7a99483c1c1734357f18ebd7eba87"
+    },
+    {
+      "file": "normal_10.txt",
+      "kind": "normal",
+      "seed": 10,
+      "sha256": "aa2c26805d155656cd7f93ad0ae6ad0ec15a8b87602bddc39b1bb0d42e098070"
+    },
+    {
+      "file": "normal_11.txt",
+      "kind": "normal",
+      "seed": 11,
+      "sha256": "dc9a8ae5026425748c5f15a8d142c55cc6a3f709632575d567e6fe4a93896561"
+    },
+    {
+      "file": "normal_12.txt",
+      "kind": "normal",
+      "seed": 12,
+      "sha256": "080d7739441ffb362359583afa65c371185ea9d43c948ab4b8837fe2c2b052eb"
+    },
+    {
+      "file": "normal_13.txt",
+      "kind": "normal",
+      "seed": 13,
+      "sha256": "6ac7fa07c231ae049bdb8a50d7a67ea47479ec083d1dd47dabfcac828fbf5e0f"
+    },
+    {
+      "file": "normal_14.txt",
+      "kind": "normal",
+      "seed": 14,
+      "sha256": "dddaaab34415f20c1cf077d773d81214ddc8f6e55efe2aeba68cc2e64905da8a"
+    },
+    {
+      "file": "normal_15.txt",
+      "kind": "normal",
+      "seed": 15,
+      "sha256": "76794f2e2bf679b0478a9fc3506693908a63d11bce46d88050631d279e764838"
+    },
+    {
+      "file": "normal_16.txt",
+      "kind": "normal",
+      "seed": 16,
+      "sha256": "0979d876da19cf29686d6d6a84520fca672826a60fafb522b571d294e0470005"
+    },
+    {
+      "file": "normal_17.txt",
+      "kind": "normal",
+      "seed": 17,
+      "sha256": "81796c424f729a0e6302571cfce69284985510005b3c1833ce4c813d1fc911ed"
+    },
+    {
+      "file": "normal_18.txt",
+      "kind": "normal",
+      "seed": 18,
+      "sha256": "6d1ea176c1cd78b5d648370435c5c4997befabdc04f132ce865c28437a45e657"
+    },
+    {
+      "file": "normal_19.txt",
+      "kind": "normal",
+      "seed": 19,
+      "sha256": "4b9601008075ebec6fe60c013ec1dcd49a8e57a9b60712d530ac0c433c6e02be"
+    },
+    {
+      "file": "normal_20.txt",
+      "kind": "normal",
+      "seed": 20,
+      "sha256": "0fb7044b06a4c42e30972501315835e933260b43d9035adbc0e7394cc91f971f"
+    },
+    {
+      "file": "normal_21.txt",
+      "kind": "normal",
+      "seed": 21,
+      "sha256": "6b17d1da12cc16357e5abb6057d46665ef33bf5b85d7bcc207a4df61761bc136"
+    },
+    {
+      "file": "normal_22.txt",
+      "kind": "normal",
+      "seed": 22,
+      "sha256": "e03ec58934d5f4e72fe835937b97bd3f5bdf9885c5cd1c3d8f78d33a3f85aa70"
+    },
+    {
+      "file": "normal_23.txt",
+      "kind": "normal",
+      "seed": 23,
+      "sha256": "48984b9c7b2545cf9cd12a74547bfd0a76dd5736e2fb6b1af1181dd4ecfe7d07"
+    },
+    {
+      "file": "normal_24.txt",
+      "kind": "normal",
+      "seed": 24,
+      "sha256": "890f06139db2a4c59b8e93d3f8866cef6a825e403b4b592478068f71ae98e3b9"
+    },
+    {
+      "file": "normal_25.txt",
+      "kind": "normal",
+      "seed": 25,
+      "sha256": "a66690b16307eaf1f7f6d991a26aec7770d4949c8027bf2f1f9e67d1d6d897aa"
+    },
+    {
+      "file": "normal_26.txt",
+      "kind": "normal",
+      "seed": 26,
+      "sha256": "66b83a883114e9dc1e5f9baf1d28692b8242bad9b9fe05f17b95eb69f962fc79"
+    },
+    {
+      "file": "normal_27.txt",
+      "kind": "normal",
+      "seed": 27,
+      "sha256": "83546771a5e9f6766248947b2a21e14ff62364f3fe0b88651a89cc0f3990ed9d"
+    },
+    {
+      "file": "normal_28.txt",
+      "kind": "normal",
+      "seed": 28,
+      "sha256": "2ecfa79ff54e2f6d8058d9c4a813c795777c63fac2069085d1b05439bcc0717a"
+    },
+    {
+      "file": "normal_29.txt",
+      "kind": "normal",
+      "seed": 29,
+      "sha256": "01d38f0c4fba3c3330dc2f69f6de330c5c4ef19c49738565b9d70809495a647c"
+    },
+    {
+      "file": "normal_30.txt",
+      "kind": "normal",
+      "seed": 30,
+      "sha256": "559196141d49e5bb0b83b27d0ee0db217b471581d06c8a25ad5230c4c2401a99"
+    },
+    {
+      "file": "normal_31.txt",
+      "kind": "normal",
+      "seed": 31,
+      "sha256": "87937287ef32e9612fed2209d5cffacfc1787ea1839196551471b37657cb96ad"
+    },
+    {
+      "file": "normal_32.txt",
+      "kind": "normal",
+      "seed": 32,
+      "sha256": "84e31e8f43b95905b81b361f4f990381fa398b4cad5009dd9351004366a296c3"
+    },
+    {
+      "file": "normal_33.txt",
+      "kind": "normal",
+      "seed": 33,
+      "sha256": "0ca8f22e5b60e32f6a5daadf6091fbee607444864a1f87f0227402fa6a31e321"
+    },
+    {
+      "file": "normal_34.txt",
+      "kind": "normal",
+      "seed": 34,
+      "sha256": "338468da2d202fa53f56c5497d8ac40842fb2a18eaa3fd415f2c3348891ea96f"
+    },
+    {
+      "file": "normal_35.txt",
+      "kind": "normal",
+      "seed": 35,
+      "sha256": "17ee0608021d962ec46d84d4567fea7281a7b84930200431e62c9c28816e4c54"
+    },
+    {
+      "file": "normal_36.txt",
+      "kind": "normal",
+      "seed": 36,
+      "sha256": "25c2d9dc6a620efb85a2a35e4c4aad4a3a30d589df7020ec052ea96c340e5d21"
+    },
+    {
+      "file": "normal_37.txt",
+      "kind": "normal",
+      "seed": 37,
+      "sha256": "c7f43ec517268acd3801c7b1b208b333b299515bffb08c076bd121df041f32ad"
+    },
+    {
+      "file": "normal_38.txt",
+      "kind": "normal",
+      "seed": 38,
+      "sha256": "ffdc8f4bf3dee0adec287f9c4733bf3b6632f6ef3fc110e726e3e81ef27bd171"
+    },
+    {
+      "file": "normal_39.txt",
+      "kind": "normal",
+      "seed": 39,
+      "sha256": "bc3c3aa424f9d5d34bd9f5534b9cba51501f6c46a5cbaedad8a1df405bd2edbb"
+    },
+    {
+      "file": "repeat_00.txt",
+      "kind": "repeat",
+      "seed": 0,
+      "sha256": "0075a69e1691b0c7ed7b71541eb511b92f07955a4522dbdc8d18726a40d16d8f"
+    },
+    {
+      "file": "repeat_01.txt",
+      "kind": "repeat",
+      "seed": 1,
+      "sha256": "f2aa815f9ce5b36cdac09562fb418033aa0f212e8567960a35cf35b59c149573"
+    },
+    {
+      "file": "repeat_02.txt",
+      "kind": "repeat",
+      "seed": 2,
+      "sha256": "a8fb512fced13e83ad899f9f7d6c2a483a87efba230933649b869fcdbd28a507"
+    },
+    {
+      "file": "repeat_03.txt",
+      "kind": "repeat",
+      "seed": 3,
+      "sha256": "8d9bf273ccbeb2168bcb8080deb568a19ab4fe0ae4dabda7529d06cde513dfef"
+    },
+    {
+      "file": "repeat_04.txt",
+      "kind": "repeat",
+      "seed": 4,
+      "sha256": "0d1505cb72442ed72660b986b8e5b2809dd2762126f24681534be614c2b3e8c4"
+    },
+    {
+      "file": "repeat_05.txt",
+      "kind": "repeat",
+      "seed": 5,
+      "sha256": "c7b4ea53404c7e6a635dde15cb12e51e84decb55b4372f1cab9a2d6fd5c6447f"
+    },
+    {
+      "file": "repeat_06.txt",
+      "kind": "repeat",
+      "seed": 6,
+      "sha256": "317f2cc10df6d7e6514e884a17ea35ae0b96d55f21ef835cc3867517331c1ca0"
+    },
+    {
+      "file": "repeat_07.txt",
+      "kind": "repeat",
+      "seed": 7,
+      "sha256": "111ddb59afc86c6768b7d79015264914e7c7a49302c8f09c770ee324b2f854df"
+    },
+    {
+      "file": "repeat_08.txt",
+      "kind": "repeat",
+      "seed": 8,
+      "sha256": "d3ee2a40c4b2b8d2daeb7dfd7d0d0d13fe75f2db30a146cf770ef0e8674720a8"
+    },
+    {
+      "file": "repeat_09.txt",
+      "kind": "repeat",
+      "seed": 9,
+      "sha256": "835e5ae0d8de4bd521d4484633b9eb2b8d31ffad8912b0e55aad460cec0ccc20"
+    },
+    {
+      "file": "repeat_10.txt",
+      "kind": "repeat",
+      "seed": 10,
+      "sha256": "f6ab855e226d7582e0520fc5f17007d0cd6c86a6ab82d7c5c41f896f32455b54"
+    },
+    {
+      "file": "repeat_11.txt",
+      "kind": "repeat",
+      "seed": 11,
+      "sha256": "f6f7dc1802bfd300a041642f7a8afd6a2b9824844ba4bafe7d9be12404e21754"
+    },
+    {
+      "file": "repeat_12.txt",
+      "kind": "repeat",
+      "seed": 12,
+      "sha256": "8f5b22e92aa6c629529bd0c876b0239b1afc4f266d508a52cbd8177d052a1acb"
+    },
+    {
+      "file": "repeat_13.txt",
+      "kind": "repeat",
+      "seed": 13,
+      "sha256": "583f0a4a36596c96650fea6e9f541aed76cc198ec76c3a3d6c7bc698fa1e1ab4"
+    },
+    {
+      "file": "repeat_14.txt",
+      "kind": "repeat",
+      "seed": 14,
+      "sha256": "94b8ab4348637f414ace498488cea971d571b63342d8b42388439a1e848f3359"
+    },
+    {
+      "file": "repeat_15.txt",
+      "kind": "repeat",
+      "seed": 15,
+      "sha256": "16b5bae21c6170407b7b7e75ba767ec84765de816d339bd9bd472b89cf45475f"
+    },
+    {
+      "file": "repeat_16.txt",
+      "kind": "repeat",
+      "seed": 16,
+      "sha256": "5cc72cdc836f3baf8d2fd881036b91cecb38e1a74c8411d89db77994130f99bf"
+    },
+    {
+      "file": "repeat_17.txt",
+      "kind": "repeat",
+      "seed": 17,
+      "sha256": "e1e4829ee71d100ceccdba67ad85154e511b28eb651513aca24f6180db3edce8"
+    },
+    {
+      "file": "repeat_18.txt",
+      "kind": "repeat",
+      "seed": 18,
+      "sha256": "b532ebd09c3b0402c40a0f5d2aedc1395c9a3e765d2d7c48b0202cb8fff2d61e"
+    },
+    {
+      "file": "repeat_19.txt",
+      "kind": "repeat",
+      "seed": 19,
+      "sha256": "d52de6df478310ca9a905f353886e25b204f3ec6bc5831bfaff8c8cc7a0269a1"
+    },
+    {
+      "file": "repeat_20.txt",
+      "kind": "repeat",
+      "seed": 20,
+      "sha256": "0f532228734802b51d420c333cc136a0ea12d0ac41cd666be71b1421a0b58a85"
+    },
+    {
+      "file": "repeat_21.txt",
+      "kind": "repeat",
+      "seed": 21,
+      "sha256": "5eadb3d3f20b4c44fdba26087d413dee6255592df0e0351cc41d4461d46c89b4"
+    },
+    {
+      "file": "repeat_22.txt",
+      "kind": "repeat",
+      "seed": 22,
+      "sha256": "9d1ff4b4c8e4ed1b3cc6699a39869018f301e37148670f3f2fac7ad3b8530070"
+    },
+    {
+      "file": "repeat_23.txt",
+      "kind": "repeat",
+      "seed": 23,
+      "sha256": "c0176b8c5d000436eb8368404d33e2338e8b7ae8d9844cc3342854babe93be2c"
+    },
+    {
+      "file": "repeat_24.txt",
+      "kind": "repeat",
+      "seed": 24,
+      "sha256": "9387f55f4cc5d54378c09a9b450c1e50aea87a1ac95341904133547bcee78439"
+    },
+    {
+      "file": "repeat_25.txt",
+      "kind": "repeat",
+      "seed": 25,
+      "sha256": "61850e21d81858c99004b6de63d217e658b32063e1640184b4d64309c14b47a5"
+    },
+    {
+      "file": "repeat_26.txt",
+      "kind": "repeat",
+      "seed": 26,
+      "sha256": "c57b7e0324b219f462719075fbe907f45340018f8dc736b2442924f68dc4664d"
+    },
+    {
+      "file": "repeat_27.txt",
+      "kind": "repeat",
+      "seed": 27,
+      "sha256": "a0134d20dbed7d9ac9ab62c473a3daf308bbb4be0d5020d95740b1f06223ef68"
+    },
+    {
+      "file": "repeat_28.txt",
+      "kind": "repeat",
+      "seed": 28,
+      "sha256": "589863826fe449989382e1b531fcdb51ca55c3a61db7e6860d1667741cd11554"
+    },
+    {
+      "file": "repeat_29.txt",
+      "kind": "repeat",
+      "seed": 29,
+      "sha256": "28b4b12cb884f418c53c76ecc0ccb48e366e6f6189921a677096442b3ca5f692"
+    },
+    {
+      "file": "repeat_30.txt",
+      "kind": "repeat",
+      "seed": 30,
+      "sha256": "8b3cebbc9a017dc4f30a903db8499b7e53a7e5d2cd4a41d875f081a543644f38"
+    },
+    {
+      "file": "repeat_31.txt",
+      "kind": "repeat",
+      "seed": 31,
+      "sha256": "96e8f13968c669c1a8682e933f6cd691522c9caca3bdb1f369f6cd69dde766f6"
+    },
+    {
+      "file": "repeat_32.txt",
+      "kind": "repeat",
+      "seed": 32,
+      "sha256": "63293174f9a77736cd4ed4789f047a02d9b1d493f75917fd77734b9cd1e41801"
+    },
+    {
+      "file": "repeat_33.txt",
+      "kind": "repeat",
+      "seed": 33,
+      "sha256": "e290d401956614877d0ca80346bad406e80adee20d12ca134517ca439500e7f4"
+    },
+    {
+      "file": "repeat_34.txt",
+      "kind": "repeat",
+      "seed": 34,
+      "sha256": "3c533ddf0c62a716f66f638b09a351dc0baff7a12c06f5cb4b2715ecdf34e484"
+    },
+    {
+      "file": "repeat_35.txt",
+      "kind": "repeat",
+      "seed": 35,
+      "sha256": "5ca1dad3cc96f10923b46d30658713d40c6efd1a4c9fd08294d8ccfdcf57cdd3"
+    },
+    {
+      "file": "repeat_36.txt",
+      "kind": "repeat",
+      "seed": 36,
+      "sha256": "930580e0c32595124155c7aaa4558cd8ebad3fb805f30a5432964639b5402344"
+    },
+    {
+      "file": "repeat_37.txt",
+      "kind": "repeat",
+      "seed": 37,
+      "sha256": "e29730a22caf61d8c277a89ddb2450ce7955bdc0613b8b8a232cff0e3487e8c0"
+    },
+    {
+      "file": "repeat_38.txt",
+      "kind": "repeat",
+      "seed": 38,
+      "sha256": "6e98e87bd0faa8dc7516d64285970dcd166e611728805d60e922f8f63fdf3ffe"
+    },
+    {
+      "file": "repeat_39.txt",
+      "kind": "repeat",
+      "seed": 39,
+      "sha256": "9a4e296a4dbd3fca9112518d8221c25c0773e19b35670c5778166bea7aa35346"
+    },
+    {
+      "file": "hotshift20_00.txt",
+      "kind": "hotshift20",
+      "seed": 0,
+      "sha256": "16d7ac776f7bc7e5602dc2a0f154b531ed04b6d0e34a1610ce1fe662cdd0ca6c"
+    },
+    {
+      "file": "hotshift20_01.txt",
+      "kind": "hotshift20",
+      "seed": 1,
+      "sha256": "3f991995b525282b785960c61027aa2f59d4a144b56bd90f9fbbd4380cd2414c"
+    },
+    {
+      "file": "hotshift20_02.txt",
+      "kind": "hotshift20",
+      "seed": 2,
+      "sha256": "c03acc0346514bcdded1fc01284c0bceec68e535d66c75e95adc670620ac6fca"
+    },
+    {
+      "file": "hotshift20_03.txt",
+      "kind": "hotshift20",
+      "seed": 3,
+      "sha256": "fbb38c3d237fb7b16c2038d32d5e31b7e5687e9d806934ee1732a02ff93eb8bc"
+    },
+    {
+      "file": "hotshift20_04.txt",
+      "kind": "hotshift20",
+      "seed": 4,
+      "sha256": "4e5425e38adf415474aec3a42acd2a7b720236684ca6889bdd1b9c58be763d2d"
+    },
+    {
+      "file": "hotshift20_05.txt",
+      "kind": "hotshift20",
+      "seed": 5,
+      "sha256": "c90df270c8aa33ed3d635a274915d06a4a2132f2535506ece963049acc62f4c1"
+    },
+    {
+      "file": "hotshift20_06.txt",
+      "kind": "hotshift20",
+      "seed": 6,
+      "sha256": "366975aeaf0e00b3e5bbb114c9767d41a21c5ddee48e5dcdbdfc99a8587635e9"
+    },
+    {
+      "file": "hotshift20_07.txt",
+      "kind": "hotshift20",
+      "seed": 7,
+      "sha256": "55f7f2894a6c045bb004704f5abebd6e8ef23c0eec7a480d5e1021c39ab1a86f"
+    },
+    {
+      "file": "hotshift20_08.txt",
+      "kind": "hotshift20",
+      "seed": 8,
+      "sha256": "3222ece1f600c2e7957a0dbabd456f16a48fef21d66b5913c4a7aa2dda8b92cc"
+    },
+    {
+      "file": "hotshift20_09.txt",
+      "kind": "hotshift20",
+      "seed": 9,
+      "sha256": "ff04a368e37f77d637d626e17a0e9f05c952510c87243daa1854734323d0dd81"
+    },
+    {
+      "file": "hotshift20_10.txt",
+      "kind": "hotshift20",
+      "seed": 10,
+      "sha256": "af487500cc9727597f7232a6ac49109bc88aa35129b2983569e17eb7eb2ae95e"
+    },
+    {
+      "file": "hotshift20_11.txt",
+      "kind": "hotshift20",
+      "seed": 11,
+      "sha256": "4551424646d131583dbf8b84156b49cb34e8b96486fb74fb575a16fb17ef289f"
+    },
+    {
+      "file": "hotshift20_12.txt",
+      "kind": "hotshift20",
+      "seed": 12,
+      "sha256": "772f84f435a1eb88bf38a8e0bd56a600ecb0f8bfeade48e1acfaa20a76bbaaf3"
+    },
+    {
+      "file": "hotshift20_13.txt",
+      "kind": "hotshift20",
+      "seed": 13,
+      "sha256": "ac9f8e9d4f703a38bf1bb5902586c65e85191808839f4eb17611eeaef115b0a9"
+    },
+    {
+      "file": "hotshift20_14.txt",
+      "kind": "hotshift20",
+      "seed": 14,
+      "sha256": "2438a0388f0c447a6602530f61d260925d21ae310f9f005132d1fbee0d7a3e3c"
+    },
+    {
+      "file": "hotshift20_15.txt",
+      "kind": "hotshift20",
+      "seed": 15,
+      "sha256": "61ab17b04edd33f63b5ac51af591cfe8c10a16ad4575193cf6fdc9efc7cdb14b"
+    },
+    {
+      "file": "hotshift20_16.txt",
+      "kind": "hotshift20",
+      "seed": 16,
+      "sha256": "296cf7888a187c14334ffb00d0872f101b24407b22baf12fbbcd07d7b54e8700"
+    },
+    {
+      "file": "hotshift20_17.txt",
+      "kind": "hotshift20",
+      "seed": 17,
+      "sha256": "595af378907fd589ed1d481964d890ad03ffd4f9c3411c2c1400ca2acb8743d0"
+    },
+    {
+      "file": "hotshift20_18.txt",
+      "kind": "hotshift20",
+      "seed": 18,
+      "sha256": "cc71d90bc22cbcbb2cc5552e69a408a9cbb7937e6ed88680ddce21d2d97b20c5"
+    },
+    {
+      "file": "hotshift20_19.txt",
+      "kind": "hotshift20",
+      "seed": 19,
+      "sha256": "9673458dac48814d9701935f9c78ff3fc2b073dfe49ff3fe6b3c5e6a63e72190"
+    },
+    {
+      "file": "hotshift20_20.txt",
+      "kind": "hotshift20",
+      "seed": 20,
+      "sha256": "85a0bd0e0dcf76d868169d9c128b9ca230e60f77f914d7a9044ee97884ac4822"
+    },
+    {
+      "file": "hotshift20_21.txt",
+      "kind": "hotshift20",
+      "seed": 21,
+      "sha256": "876fdf9175537535aa1ca37004376a97a888677b10ae5ff1e430ad70ebe3ba7c"
+    },
+    {
+      "file": "hotshift20_22.txt",
+      "kind": "hotshift20",
+      "seed": 22,
+      "sha256": "f34990b0e6fb682813c3da3d7a6b4cfae1d0a00ea755eb601d0ec2b9cf62f972"
+    },
+    {
+      "file": "hotshift20_23.txt",
+      "kind": "hotshift20",
+      "seed": 23,
+      "sha256": "75894d70e388ba3e58ccc72ac96044a0e5c8e82c034042aba4d8b7aa1a12ee3f"
+    },
+    {
+      "file": "hotshift20_24.txt",
+      "kind": "hotshift20",
+      "seed": 24,
+      "sha256": "71cd03ad01a7a2cbb80a63eb32c12fdd4d2ead4ac4b043dbf711ae9a08d185f4"
+    },
+    {
+      "file": "hotshift20_25.txt",
+      "kind": "hotshift20",
+      "seed": 25,
+      "sha256": "18641e9932097d9b4fe145e5503921366b662c6af9ea638882da196793a354d8"
+    },
+    {
+      "file": "hotshift20_26.txt",
+      "kind": "hotshift20",
+      "seed": 26,
+      "sha256": "69a0ac574032c7ee9d71ec7d0bffe0bd534dcdd54b1164fbf1f5724c42215aa3"
+    },
+    {
+      "file": "hotshift20_27.txt",
+      "kind": "hotshift20",
+      "seed": 27,
+      "sha256": "ff303be7a9a703d6e950b945ed2ca67c034928909ecee2964669606947f67f39"
+    },
+    {
+      "file": "hotshift20_28.txt",
+      "kind": "hotshift20",
+      "seed": 28,
+      "sha256": "54afa28ae862e33c72444ab1eec85a9f349cb90d5533af08986d77a01631ae97"
+    },
+    {
+      "file": "hotshift20_29.txt",
+      "kind": "hotshift20",
+      "seed": 29,
+      "sha256": "e89ba88c2daa067538ecfed58754bc07d6e88e322e48d3da60ad3b9c76cbe968"
+    },
+    {
+      "file": "hotshift20_30.txt",
+      "kind": "hotshift20",
+      "seed": 30,
+      "sha256": "b02f25a0ddf0ee2c652fb60d11a1c6c0d964e02f8a1ae653a3dc19fc7080c8bc"
+    },
+    {
+      "file": "hotshift20_31.txt",
+      "kind": "hotshift20",
+      "seed": 31,
+      "sha256": "76b0ad24af7c5d116f8c36d1037bd43c17a24bc84c316d2d6270e5ab34e8c8b0"
+    },
+    {
+      "file": "hotshift20_32.txt",
+      "kind": "hotshift20",
+      "seed": 32,
+      "sha256": "ecba8f090041bddf5c55b02bfc32d4f44728000a480a9a28a565813085d0e69a"
+    },
+    {
+      "file": "hotshift20_33.txt",
+      "kind": "hotshift20",
+      "seed": 33,
+      "sha256": "7c35064c3504ce7cf0f59e4da72d174c0724811a5a935a907beca01e8b9cbdc2"
+    },
+    {
+      "file": "hotshift20_34.txt",
+      "kind": "hotshift20",
+      "seed": 34,
+      "sha256": "52656a9e69d068c54259e2bb6ecdf0397f8f03f0ad1a391524e4421c07558e12"
+    },
+    {
+      "file": "hotshift20_35.txt",
+      "kind": "hotshift20",
+      "seed": 35,
+      "sha256": "7ff285a1607b7d4683d387621f6594a94a4c5a9d7cedc0b6e84b7e90fb1c6ff9"
+    },
+    {
+      "file": "hotshift20_36.txt",
+      "kind": "hotshift20",
+      "seed": 36,
+      "sha256": "0cb45ec89ac7afc1b332c170cdc2fe633adbc6cda57b561045ea3aed06242b23"
+    },
+    {
+      "file": "hotshift20_37.txt",
+      "kind": "hotshift20",
+      "seed": 37,
+      "sha256": "82c727b6fd34279f3967b77fea140e8c2308a9333bf7ab14833f3c6c23d29bc6"
+    },
+    {
+      "file": "hotshift20_38.txt",
+      "kind": "hotshift20",
+      "seed": 38,
+      "sha256": "d07af7bb719c85f8fc7bd0b72f88b9d8f3d26e134c188f455edd1d4a0508e4b0"
+    },
+    {
+      "file": "hotshift20_39.txt",
+      "kind": "hotshift20",
+      "seed": 39,
+      "sha256": "37d411b7ea938501796147120f03d13979cff8d655156709ffcfa105a681d3b8"
+    },
+    {
+      "file": "hotshift_00.txt",
+      "kind": "hotshift",
+      "seed": 0,
+      "sha256": "559049ecc7b99bb8cc8f51cbed8c8766f203615f6428717483fe57a4ff4335a6"
+    },
+    {
+      "file": "hotshift_01.txt",
+      "kind": "hotshift",
+      "seed": 1,
+      "sha256": "4fdfaa154593fbd91977797fa3937da57036a727dbff5180b4d388da8e65034a"
+    },
+    {
+      "file": "hotshift_02.txt",
+      "kind": "hotshift",
+      "seed": 2,
+      "sha256": "bf51dc2932d49e20ab1faeef446473ac7c7cc6594b5c30c3d3046c13d7e15ee3"
+    },
+    {
+      "file": "hotshift_03.txt",
+      "kind": "hotshift",
+      "seed": 3,
+      "sha256": "ebb7f62dab3e9a448a1ec6d9dc24a33c4e66de114397d06b34c6009726a8dcb2"
+    },
+    {
+      "file": "hotshift_04.txt",
+      "kind": "hotshift",
+      "seed": 4,
+      "sha256": "0d73893b2dfe98146befa62ef19915e1841983e59a8e78985790072c0ae3ad8c"
+    },
+    {
+      "file": "hotshift_05.txt",
+      "kind": "hotshift",
+      "seed": 5,
+      "sha256": "d92ee67b0868cf3a316ea93639bdc43e84c86883b3e6e7f3e46dbba662b6f185"
+    },
+    {
+      "file": "hotshift_06.txt",
+      "kind": "hotshift",
+      "seed": 6,
+      "sha256": "57a4040aff2b189b945fbb43ce073be997be0d935b593f0bb4012436401b702f"
+    },
+    {
+      "file": "hotshift_07.txt",
+      "kind": "hotshift",
+      "seed": 7,
+      "sha256": "ba0c8be21b90342caa8a745827671a0bebb0425cac86a0f4f7e639ac9d7adad8"
+    },
+    {
+      "file": "hotshift_08.txt",
+      "kind": "hotshift",
+      "seed": 8,
+      "sha256": "cae2b3f65b8182c04254dce569e127b9921293ed9cc02140c2fb98832c52239c"
+    },
+    {
+      "file": "hotshift_09.txt",
+      "kind": "hotshift",
+      "seed": 9,
+      "sha256": "7a5c755911805cc899a62f8ed43cc404b4c2cc72f84044368e02eb84df935f56"
+    },
+    {
+      "file": "hotshift_10.txt",
+      "kind": "hotshift",
+      "seed": 10,
+      "sha256": "83b5ad2deedb8d8e08e0bb20e197d9e1162a5c9d1555e2d1f92828a4f6c6d69a"
+    },
+    {
+      "file": "hotshift_11.txt",
+      "kind": "hotshift",
+      "seed": 11,
+      "sha256": "0e0340e9c6efb9e8f1433ce57774bef08de32bbbcf211552b394090ae156ed58"
+    },
+    {
+      "file": "hotshift_12.txt",
+      "kind": "hotshift",
+      "seed": 12,
+      "sha256": "9f3cfa785818d6a56a9c59f6c1f265d2b56fe7721577948e0502c59962c50e51"
+    },
+    {
+      "file": "hotshift_13.txt",
+      "kind": "hotshift",
+      "seed": 13,
+      "sha256": "484eb88bc7bb8d2c68efd8906dbe305e6c053650f0a90c4ea95bb9cc31a1197a"
+    },
+    {
+      "file": "hotshift_14.txt",
+      "kind": "hotshift",
+      "seed": 14,
+      "sha256": "56fdb5b3766d0fb538036111311eff4b8dbba037e7b2c4002b5acecc866b4ede"
+    },
+    {
+      "file": "hotshift_15.txt",
+      "kind": "hotshift",
+      "seed": 15,
+      "sha256": "18c63f125aa01ae39aadc66fac7927414fc79e49e956e128cf763a54fcb5b2d8"
+    },
+    {
+      "file": "hotshift_16.txt",
+      "kind": "hotshift",
+      "seed": 16,
+      "sha256": "3078c9bfcbe358351b8a04355e3f24489801d9902c01baacd5e7f0cbe3f96817"
+    },
+    {
+      "file": "hotshift_17.txt",
+      "kind": "hotshift",
+      "seed": 17,
+      "sha256": "836d6a67edafef0c03937d5b59618413bff88593bbbe81076b1ad3551826df95"
+    },
+    {
+      "file": "hotshift_18.txt",
+      "kind": "hotshift",
+      "seed": 18,
+      "sha256": "5d90dbc9f8816e4f2567ba10d3ca54dbe0addab6c7d87a4ddc8805e236ef7056"
+    },
+    {
+      "file": "hotshift_19.txt",
+      "kind": "hotshift",
+      "seed": 19,
+      "sha256": "7b7d264f5b610e5b291b145c8db802c759ecf2e38e25359245305198c2aa649d"
+    },
+    {
+      "file": "hotshift_20.txt",
+      "kind": "hotshift",
+      "seed": 20,
+      "sha256": "ffb0c267b1e55c8cda7e063edac5498074801c89c7f3052300ef6b7b20c5840a"
+    },
+    {
+      "file": "hotshift_21.txt",
+      "kind": "hotshift",
+      "seed": 21,
+      "sha256": "2279824a2937f5551a0b678422b6f176add8c3926518bceb2fe73ce9f701a9ff"
+    },
+    {
+      "file": "hotshift_22.txt",
+      "kind": "hotshift",
+      "seed": 22,
+      "sha256": "265ec557de135225b6e19e578733a22b5d204da71d30c27965cec4703a449301"
+    },
+    {
+      "file": "hotshift_23.txt",
+      "kind": "hotshift",
+      "seed": 23,
+      "sha256": "6f2215d2603c44edadf205d8763b8fd63b59fdeabb5a3acaec7502c3815925fc"
+    },
+    {
+      "file": "hotshift_24.txt",
+      "kind": "hotshift",
+      "seed": 24,
+      "sha256": "12a7cdcd9eb553a464bb32db4b791023392651c1e2d17972214897e132e2e359"
+    },
+    {
+      "file": "hotshift_25.txt",
+      "kind": "hotshift",
+      "seed": 25,
+      "sha256": "7ea984d298e48a7b7694c5c7f2c5000b36cc25bdfa1944e07e9f4d71d3fdf295"
+    },
+    {
+      "file": "hotshift_26.txt",
+      "kind": "hotshift",
+      "seed": 26,
+      "sha256": "69862c8e36e257d90074ea894ee450ee3c7c35d9ab087ee66cf55f7bb2d30f98"
+    },
+    {
+      "file": "hotshift_27.txt",
+      "kind": "hotshift",
+      "seed": 27,
+      "sha256": "956368a23305a906e495f23a2c3ff7ea9c9ece1733e9c8782d9721a5ac617cce"
+    },
+    {
+      "file": "hotshift_28.txt",
+      "kind": "hotshift",
+      "seed": 28,
+      "sha256": "901c4375721ec6a9e2a87718316d12433816de9a2caa1964b14e04c2fdc11754"
+    },
+    {
+      "file": "hotshift_29.txt",
+      "kind": "hotshift",
+      "seed": 29,
+      "sha256": "f38e61b19ee416d39fdc7fa055180e94a89752413e6da02501fbc13fd86f3e8b"
+    },
+    {
+      "file": "hotshift_30.txt",
+      "kind": "hotshift",
+      "seed": 30,
+      "sha256": "cbd750254d8a38b68983be7616ed6991e84d6b4dae919505fab0f5c648da4cf0"
+    },
+    {
+      "file": "hotshift_31.txt",
+      "kind": "hotshift",
+      "seed": 31,
+      "sha256": "aca5a60ce3cd1ae8aac96d46988ec6cbea4bb804f0601c01c8dfeb7c66de80c1"
+    },
+    {
+      "file": "hotshift_32.txt",
+      "kind": "hotshift",
+      "seed": 32,
+      "sha256": "f23a798d6d0faea2338b29a265a14240412ac3d8b405b0a0bfef71b7a86cfdf3"
+    },
+    {
+      "file": "hotshift_33.txt",
+      "kind": "hotshift",
+      "seed": 33,
+      "sha256": "add3700ba27f5a609a35356e8f718a9e8fe63ee62d733aacf7098d2c950c70a5"
+    },
+    {
+      "file": "hotshift_34.txt",
+      "kind": "hotshift",
+      "seed": 34,
+      "sha256": "abb80e9a7c4a637fc81955183ebb50e730887595d4b46afd7e1a57e3dbbd56a0"
+    },
+    {
+      "file": "hotshift_35.txt",
+      "kind": "hotshift",
+      "seed": 35,
+      "sha256": "0168470faa116d3677f6677e5d7a1f77d1c00c840a387fef085d5d9ea53c3270"
+    },
+    {
+      "file": "hotshift_36.txt",
+      "kind": "hotshift",
+      "seed": 36,
+      "sha256": "e941a0218cb4fc87702020712194ed235fa301b64dad294cc48f68819a5023dc"
+    },
+    {
+      "file": "hotshift_37.txt",
+      "kind": "hotshift",
+      "seed": 37,
+      "sha256": "dbde26f817e1786d3ca66a474fe8ce1f83eb9fc8a2b3b0abfb94ac09af1cc692"
+    },
+    {
+      "file": "hotshift_38.txt",
+      "kind": "hotshift",
+      "seed": 38,
+      "sha256": "31b89b4d598882fcb459c54e14a78e96b83b1179908689b4f926dd5e115405ec"
+    },
+    {
+      "file": "hotshift_39.txt",
+      "kind": "hotshift",
+      "seed": 39,
+      "sha256": "8051f38a5c5559ea9852da6cde7d3423211d746b59ea7b4b39d561a23d56bfd4"
+    },
+    {
+      "file": "hotshift400_00.txt",
+      "kind": "hotshift400",
+      "seed": 0,
+      "sha256": "957c300b5219b4318d11c5858bc779d3a91e999533078b0da1c5ce5396e5a014"
+    },
+    {
+      "file": "hotshift400_01.txt",
+      "kind": "hotshift400",
+      "seed": 1,
+      "sha256": "427504e9db07cc06513154e0061e6697b8ae9f553b8fc9fe230830038c3822f1"
+    },
+    {
+      "file": "hotshift400_02.txt",
+      "kind": "hotshift400",
+      "seed": 2,
+      "sha256": "0c364c8ea4ec7dfbedd87a9f06c14ba1f5dbe90433540001a17d80035776ed9c"
+    },
+    {
+      "file": "hotshift400_03.txt",
+      "kind": "hotshift400",
+      "seed": 3,
+      "sha256": "d3f6dea549475319fc4dbb9d83310510f37ea0b33236c9d409d5e40885a9faad"
+    },
+    {
+      "file": "hotshift400_04.txt",
+      "kind": "hotshift400",
+      "seed": 4,
+      "sha256": "7037a9e1de29670459516132875d818883e9d284ca454b14691d603af5e49b51"
+    },
+    {
+      "file": "hotshift400_05.txt",
+      "kind": "hotshift400",
+      "seed": 5,
+      "sha256": "090ecf511245828920d777caeb75fba036c85720f0e8cfa045e0ece3d5abb767"
+    },
+    {
+      "file": "hotshift400_06.txt",
+      "kind": "hotshift400",
+      "seed": 6,
+      "sha256": "ffd0ca2243f0203728e4aa80b990a10dc700956ed35e2f2a8dacb079c561f4ed"
+    },
+    {
+      "file": "hotshift400_07.txt",
+      "kind": "hotshift400",
+      "seed": 7,
+      "sha256": "7153c4575a18555c773e8c50777d7025fd7a7448bb5aa7453b47015eeb23662a"
+    },
+    {
+      "file": "hotshift400_08.txt",
+      "kind": "hotshift400",
+      "seed": 8,
+      "sha256": "12a75c9339248a213288bfd4016da2d74f281f49d76c7704e30874eade2aa3b0"
+    },
+    {
+      "file": "hotshift400_09.txt",
+      "kind": "hotshift400",
+      "seed": 9,
+      "sha256": "7390d8b4e5ea52b3747eb2a3fbe122b0f425297ce8bcf3a1f0d69afc9451c056"
+    },
+    {
+      "file": "hotshift400_10.txt",
+      "kind": "hotshift400",
+      "seed": 10,
+      "sha256": "cad43d9b9b153fddc5080c91edc8008cd496b1a51a6118dca04c7b296653fd2d"
+    },
+    {
+      "file": "hotshift400_11.txt",
+      "kind": "hotshift400",
+      "seed": 11,
+      "sha256": "d6dce33343c2ea90b26b94265bf27b051f3bfff376f87609514f4b3470714b36"
+    },
+    {
+      "file": "hotshift400_12.txt",
+      "kind": "hotshift400",
+      "seed": 12,
+      "sha256": "c14cbc5d20653cebb90b1a1674e5c780130c8223c48ecb2ed2795fe01888c7fa"
+    },
+    {
+      "file": "hotshift400_13.txt",
+      "kind": "hotshift400",
+      "seed": 13,
+      "sha256": "97d9be6fa264575a6cb90298931a622901be1f06750b59e72c0e947362d050ba"
+    },
+    {
+      "file": "hotshift400_14.txt",
+      "kind": "hotshift400",
+      "seed": 14,
+      "sha256": "eacf6709f6fe25592c0d6cb0a026d510b87f910c28de601bdbaaa8594d9d7b99"
+    },
+    {
+      "file": "hotshift400_15.txt",
+      "kind": "hotshift400",
+      "seed": 15,
+      "sha256": "2f7b40abc8a3e08d4357401e4f4e2c1aaca73ea76d6fdbf985411389aa60eb37"
+    },
+    {
+      "file": "hotshift400_16.txt",
+      "kind": "hotshift400",
+      "seed": 16,
+      "sha256": "e6a7d9bbe158e98787b88fcbe20c341410a872f9379ac7ee0717c6367b3a3606"
+    },
+    {
+      "file": "hotshift400_17.txt",
+      "kind": "hotshift400",
+      "seed": 17,
+      "sha256": "da4841308f38e939e074ecc8d37b3757c913168c319e4c818877f8a45641a1aa"
+    },
+    {
+      "file": "hotshift400_18.txt",
+      "kind": "hotshift400",
+      "seed": 18,
+      "sha256": "ac7fde3c1729d02d59a54c2d5222bec0219ca8fed9b60ad69b9c36ae7d40a6d6"
+    },
+    {
+      "file": "hotshift400_19.txt",
+      "kind": "hotshift400",
+      "seed": 19,
+      "sha256": "17e08e4d4bc60be2b05230047df715fa567c09796ede58b7c519bc964912fb60"
+    },
+    {
+      "file": "hotshift400_20.txt",
+      "kind": "hotshift400",
+      "seed": 20,
+      "sha256": "74850abea5b12f51856bd70ef94b74de55ce91268a85c680decd6ca44214af49"
+    },
+    {
+      "file": "hotshift400_21.txt",
+      "kind": "hotshift400",
+      "seed": 21,
+      "sha256": "30c2f90a6e70c5a965aa2c6254115e6362bf8908e1aaa0d291ded945ff21ab46"
+    },
+    {
+      "file": "hotshift400_22.txt",
+      "kind": "hotshift400",
+      "seed": 22,
+      "sha256": "dcdcb9a1868713f1185539f279615cd4e572cc8c3338845bbcd0feba30cd531a"
+    },
+    {
+      "file": "hotshift400_23.txt",
+      "kind": "hotshift400",
+      "seed": 23,
+      "sha256": "90bdedc0aaa80180fea9e49f9609e03ca91dfe4b831656d21080a1f90e6b65c1"
+    },
+    {
+      "file": "hotshift400_24.txt",
+      "kind": "hotshift400",
+      "seed": 24,
+      "sha256": "5d04d1c41420a13fdc471034d1383d9c2a9cf33b3db6412ff2143f765c8f4254"
+    },
+    {
+      "file": "hotshift400_25.txt",
+      "kind": "hotshift400",
+      "seed": 25,
+      "sha256": "684d88e258b09c89ec2aaf31aedd269624062b45fa877af902c207a624663c4e"
+    },
+    {
+      "file": "hotshift400_26.txt",
+      "kind": "hotshift400",
+      "seed": 26,
+      "sha256": "47a63619af2b4977d236018889b35c593909c0ae9b7927aabde7b589d43c9f08"
+    },
+    {
+      "file": "hotshift400_27.txt",
+      "kind": "hotshift400",
+      "seed": 27,
+      "sha256": "a1c1df36357ca21f9cec982d8cf4fbbcc7fddee525be5c63d8e81c62b5f06b57"
+    },
+    {
+      "file": "hotshift400_28.txt",
+      "kind": "hotshift400",
+      "seed": 28,
+      "sha256": "d70c7fbe0cfa23ea01f248497c1f6a89948a4942ab1c73a67cdafa3dff12777b"
+    },
+    {
+      "file": "hotshift400_29.txt",
+      "kind": "hotshift400",
+      "seed": 29,
+      "sha256": "eeceecea0433d67f56595fb31dc9d1779b259e5aa5107a48ef24a6306c0b1514"
+    },
+    {
+      "file": "hotshift400_30.txt",
+      "kind": "hotshift400",
+      "seed": 30,
+      "sha256": "6c2a24f1e6c5ee3ff0b1121861e67e3c2c78e79748a63f31d4c83110ec6c42c4"
+    },
+    {
+      "file": "hotshift400_31.txt",
+      "kind": "hotshift400",
+      "seed": 31,
+      "sha256": "acef0e9e99fe0cee8d5b39a4d3a4009145121752950c5d38930ee6ab3cd58a8e"
+    },
+    {
+      "file": "hotshift400_32.txt",
+      "kind": "hotshift400",
+      "seed": 32,
+      "sha256": "55855bbb5091f9e0720dd8c702a88ab4fa70b4422f594c8e8782f45e02e996fb"
+    },
+    {
+      "file": "hotshift400_33.txt",
+      "kind": "hotshift400",
+      "seed": 33,
+      "sha256": "cd3d2612d737b60b4d10730c0525e0f7be5eed0c5828a798d43802e458d271d5"
+    },
+    {
+      "file": "hotshift400_34.txt",
+      "kind": "hotshift400",
+      "seed": 34,
+      "sha256": "070aa1be4240fafcdbd43fb905fa5642764642bf003ef96c555a1275f2726fed"
+    },
+    {
+      "file": "hotshift400_35.txt",
+      "kind": "hotshift400",
+      "seed": 35,
+      "sha256": "64a02ed7eda4a955365bfa6a579f62a84cfe0eab59125cbe5b47428e9fb138df"
+    },
+    {
+      "file": "hotshift400_36.txt",
+      "kind": "hotshift400",
+      "seed": 36,
+      "sha256": "ad9ef700f2a0dc89fd16673a6e588d0222b4d4a624507cf60d7ffef0c99b3dd9"
+    },
+    {
+      "file": "hotshift400_37.txt",
+      "kind": "hotshift400",
+      "seed": 37,
+      "sha256": "db2118bf1e4127065c4b8c5cc82826a7420c2304c5731d6699ac31786e7cf434"
+    },
+    {
+      "file": "hotshift400_38.txt",
+      "kind": "hotshift400",
+      "seed": 38,
+      "sha256": "a40c089e13ffde8ef56ceaeaeaeb15857aa0d6d21c63e98a25bf65ad5436f4b7"
+    },
+    {
+      "file": "hotshift400_39.txt",
+      "kind": "hotshift400",
+      "seed": 39,
+      "sha256": "5f32f138251c88c06a7a10654066d47f325634a09d687b00db1b1d3056da557c"
+    },
+    {
+      "file": "mixed_00.txt",
+      "kind": "mixed",
+      "seed": 0,
+      "sha256": "e036cb6668e6fb374114f811fb6d44aac1885182eb17dd897202ee7fe8a6d2e3"
+    },
+    {
+      "file": "mixed_01.txt",
+      "kind": "mixed",
+      "seed": 1,
+      "sha256": "014519b8ddad08d0138cda1b852f0f9d3abf6964095e02814509b58e1ea124e6"
+    },
+    {
+      "file": "mixed_02.txt",
+      "kind": "mixed",
+      "seed": 2,
+      "sha256": "0d0fe1f608bdea3298cfe9834ec2022d954f34ddc3f192f3ddf77c296bacb003"
+    },
+    {
+      "file": "mixed_03.txt",
+      "kind": "mixed",
+      "seed": 3,
+      "sha256": "10c13da20f83994297d484235f6da39f1da242a698bfd5530439331a98880257"
+    },
+    {
+      "file": "mixed_04.txt",
+      "kind": "mixed",
+      "seed": 4,
+      "sha256": "0b0ec3c9ea3aa2c9b0a829bf8879edf42e723f93558cb6b099cbccb0ba1f51c9"
+    },
+    {
+      "file": "mixed_05.txt",
+      "kind": "mixed",
+      "seed": 5,
+      "sha256": "18ad78475389be4321677076553fbca34cc12955b6bb2b59864aa3ddfcec26c1"
+    },
+    {
+      "file": "mixed_06.txt",
+      "kind": "mixed",
+      "seed": 6,
+      "sha256": "1fdbdcfa2fe26e8341cbac6d5f958379aa8f61140a003c51a9093fc0496d87f0"
+    },
+    {
+      "file": "mixed_07.txt",
+      "kind": "mixed",
+      "seed": 7,
+      "sha256": "69142fbc04342c306feb5a33769cec070cb6abadc61e3ce9e1d3d06f4356c185"
+    },
+    {
+      "file": "mixed_08.txt",
+      "kind": "mixed",
+      "seed": 8,
+      "sha256": "28c040567002c22ebd93785cae9333100d305e4d96f085c3a921c586066ec7fa"
+    },
+    {
+      "file": "mixed_09.txt",
+      "kind": "mixed",
+      "seed": 9,
+      "sha256": "1fb96a9ca854d4ce3a089ea0794ed5f1f943c813e164563b8cfdc058948b3db5"
+    },
+    {
+      "file": "mixed_10.txt",
+      "kind": "mixed",
+      "seed": 10,
+      "sha256": "f5f4799f84f28c2823485fceb11f95aafc7077f816fd504245185d6d29d85f53"
+    },
+    {
+      "file": "mixed_11.txt",
+      "kind": "mixed",
+      "seed": 11,
+      "sha256": "72ee6064328b3deecd66ec73eb6ba37d4b0f60e05a44dc50d7eab29153bc6f83"
+    },
+    {
+      "file": "mixed_12.txt",
+      "kind": "mixed",
+      "seed": 12,
+      "sha256": "c6c0c56d641552612aa5e369588a5d771af72a0e4457dd8afe7b1f44fe6d7590"
+    },
+    {
+      "file": "mixed_13.txt",
+      "kind": "mixed",
+      "seed": 13,
+      "sha256": "9977d55aeb6d27100a969a7cc89c2b407b34232836038abcb282cc71bfcf5012"
+    },
+    {
+      "file": "mixed_14.txt",
+      "kind": "mixed",
+      "seed": 14,
+      "sha256": "1ae30e1e7eca809d69e098208b570ad480e4fe9d6ef8c6852d63b4e5b80f4d65"
+    },
+    {
+      "file": "mixed_15.txt",
+      "kind": "mixed",
+      "seed": 15,
+      "sha256": "cd29ea7d32b9b8c195245a4148d44151bf36641109bf2da4a075ea9ff88dbf6c"
+    },
+    {
+      "file": "mixed_16.txt",
+      "kind": "mixed",
+      "seed": 16,
+      "sha256": "97a59f0be22122ea9331ae0fb7516bd83b9f9d3bd5f61a0454eac50e1672c3e4"
+    },
+    {
+      "file": "mixed_17.txt",
+      "kind": "mixed",
+      "seed": 17,
+      "sha256": "5515fa195061f06705ed27bf56af0f8840959eae0215a3dbd1179df4bf55c073"
+    },
+    {
+      "file": "mixed_18.txt",
+      "kind": "mixed",
+      "seed": 18,
+      "sha256": "bce7813ff83ba36791e27a60e0e59a4af120243ca1bbdac70e51c5524b50aa17"
+    },
+    {
+      "file": "mixed_19.txt",
+      "kind": "mixed",
+      "seed": 19,
+      "sha256": "cc00da3bee31aca1bda1c4f070118e61847a37b82e62cb3f114a0a2a401ad067"
+    },
+    {
+      "file": "mixed_20.txt",
+      "kind": "mixed",
+      "seed": 20,
+      "sha256": "042537ff17fabe6f2d6845e810c3474b0b6e07993775b5c67c49015f88080a8d"
+    },
+    {
+      "file": "mixed_21.txt",
+      "kind": "mixed",
+      "seed": 21,
+      "sha256": "26882e3401f3b6955e43bfeee33887a592721dafe9854dce2b0da93fa2090c12"
+    },
+    {
+      "file": "mixed_22.txt",
+      "kind": "mixed",
+      "seed": 22,
+      "sha256": "17fe365556772a46d63d47999ff1ee89ac03f2869308c3b3b071d0c4ac361843"
+    },
+    {
+      "file": "mixed_23.txt",
+      "kind": "mixed",
+      "seed": 23,
+      "sha256": "54bbabc76f86d2b0f95d803e18f36a455bb5359e56d9605add0927caf2441813"
+    },
+    {
+      "file": "mixed_24.txt",
+      "kind": "mixed",
+      "seed": 24,
+      "sha256": "9b28d257d20f46f1c9965ceff134558f41e18d6eebb13eb5aba143fc3f690586"
+    },
+    {
+      "file": "mixed_25.txt",
+      "kind": "mixed",
+      "seed": 25,
+      "sha256": "5b63ad48cbbe9528a8359d05f0f0eed8974c30f449f162bcf00be0783dcd1263"
+    },
+    {
+      "file": "mixed_26.txt",
+      "kind": "mixed",
+      "seed": 26,
+      "sha256": "5126584ea576ce0904de45545dd821e6fd352571e06e0573ace2ccf1415b8db9"
+    },
+    {
+      "file": "mixed_27.txt",
+      "kind": "mixed",
+      "seed": 27,
+      "sha256": "f3639b9f6ab863b5cd13f1a38e485fdb645381a664c1dbcb677c81a45965e2a0"
+    },
+    {
+      "file": "mixed_28.txt",
+      "kind": "mixed",
+      "seed": 28,
+      "sha256": "d5d04c8c10a004d4925ffaef0eaa0ac99e8d29aef1ae7061710fa3b7366502b1"
+    },
+    {
+      "file": "mixed_29.txt",
+      "kind": "mixed",
+      "seed": 29,
+      "sha256": "f5e8c2183af43b2cfa9af70bbe258ac4a102f767428ca9baf68c2c586259f44a"
+    },
+    {
+      "file": "mixed_30.txt",
+      "kind": "mixed",
+      "seed": 30,
+      "sha256": "7ef988daaa4c8873a56e2972bc722052e701ddae81ce25642d1b6d2715fdda0d"
+    },
+    {
+      "file": "mixed_31.txt",
+      "kind": "mixed",
+      "seed": 31,
+      "sha256": "2d11585366078ce4236b095a4f3eb05d0335ab6142ed3eaab2e997483674c62f"
+    },
+    {
+      "file": "mixed_32.txt",
+      "kind": "mixed",
+      "seed": 32,
+      "sha256": "4d8d8e1bae7b3564ee671c3eeccf9c958bf76c0dc2d706a04788bdb77bb90e98"
+    },
+    {
+      "file": "mixed_33.txt",
+      "kind": "mixed",
+      "seed": 33,
+      "sha256": "5b11e705b7ddf11e3983d86f96ebc6fbffb26d2b5a59a7d758db7d8c12b3fb9a"
+    },
+    {
+      "file": "mixed_34.txt",
+      "kind": "mixed",
+      "seed": 34,
+      "sha256": "218aa2fce6096953a41310023c295c1708c66005023966f2bc974861903610d9"
+    },
+    {
+      "file": "mixed_35.txt",
+      "kind": "mixed",
+      "seed": 35,
+      "sha256": "6337c7e9794876b1ac20dfc7e6ba1aaa1487865613c003eaf0aade9a2c27bc3f"
+    },
+    {
+      "file": "mixed_36.txt",
+      "kind": "mixed",
+      "seed": 36,
+      "sha256": "8f7d3a8a597dbc69e1839841405b7985fd04e0ae52655bb6f7734f0dbb6670ca"
+    },
+    {
+      "file": "mixed_37.txt",
+      "kind": "mixed",
+      "seed": 37,
+      "sha256": "aeb6f1cbe0349ce01fdef36c2180a7bf42139b98688b859aa55dfc60a8b7c18b"
+    },
+    {
+      "file": "mixed_38.txt",
+      "kind": "mixed",
+      "seed": 38,
+      "sha256": "4f965cf2f1ad7070ff6a72caba2fc304a2b9724f63fa1fc578784f2cb48d586a"
+    },
+    {
+      "file": "mixed_39.txt",
+      "kind": "mixed",
+      "seed": 39,
+      "sha256": "917d5bc4cde3f9d2454a37cb2b5272fba7b903643cd6fc5de79699dbb2c8f832"
+    }
+  ]
+}

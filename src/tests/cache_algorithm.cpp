@@ -1171,7 +1171,7 @@ TEST(TwoQueuesTest, InstancesHaveIndependentState) {
 TEST(TwoQueuesTest, InQueueHoldsTwoPages) {
   cache::TwoQueues<int, int> cache(20, LoadPage);
 
-  // IN uses 10% of the capacity, so a cache of size 20 holds 2 pages in IN.
+  // IN uses floor(capacity / 7), so a cache of size 20 holds 2 pages in IN.
   EXPECT_EQ(cache.LookUpUpdate(1), 10);
   EXPECT_EQ(cache.LookUpUpdate(2), 20);
   EXPECT_EQ(cache.LookUpUpdate(2), 20);
@@ -1219,41 +1219,43 @@ TEST(TwoQueuesTest, OutHitReloadsAndPromotesPage) {
 TEST(TwoQueuesTest, ForgottenOutPageReturnsToInInsteadOfLru) {
   int loader_calls = 0;
   cache::TwoQueues<int, int> cache(
-      10, [&](const int&) { return ++loader_calls; });  // OUT holds three keys.
-  for (int key = 1; key <= 5; ++key) {
+      10, [&](const int&) { return ++loader_calls; });  // OUT holds four keys.
+  for (int key = 1; key <= 6; ++key) {
     EXPECT_EQ(cache.LookUpUpdate(key), key);
   }
   // Key 1 has left OUT, so it must enter IN on the next access.
-  EXPECT_EQ(cache.LookUpUpdate(1), 6);
-  EXPECT_EQ(cache.LookUpUpdate(6), 7);
-  EXPECT_EQ(cache.LookUpUpdate(1), 8);
-  EXPECT_EQ(loader_calls, 8);
-  EXPECT_EQ(cache.GetCacheMissCount(), 8);
-  EXPECT_EQ(cache.GetAccessCount(), 8);
+  EXPECT_EQ(cache.LookUpUpdate(1), 7);
+  EXPECT_EQ(cache.LookUpUpdate(7), 8);
+  // Key 1 is now in OUT, so this access reloads it into LRU.
+  EXPECT_EQ(cache.LookUpUpdate(1), 9);
+  EXPECT_EQ(loader_calls, 9);
+  EXPECT_EQ(cache.GetCacheMissCount(), 9);
+  EXPECT_EQ(cache.GetAccessCount(), 9);
 }
 
 TEST(TwoQueuesTest, LruHitChangesVictimWhenPromotionFillsLru) {
   int loader_calls = 0;
   cache::TwoQueues<int, int> cache(5, [&](const int&) {
     return ++loader_calls;
-  });  // IN = 1, OUT = 1, LRU = 3.
-  for (int key : {1, 2, 1, 3, 2, 4, 3}) {
+  });  // IN = 1, OUT = 2, LRU = 4.
+  for (int key : {1, 2, 1, 3, 2, 4, 3, 5, 4}) {
     cache.LookUpUpdate(key);
   }
-  // LRU contains 1, 2, 3. Touching 1 makes 2 the next victim.
+  // LRU contains 1, 2, 3, 4. Touching 1 makes 2 the next victim.
   EXPECT_EQ(cache.LookUpUpdate(1), 3);
-  EXPECT_EQ(cache.LookUpUpdate(5), 8);
-  EXPECT_EQ(cache.LookUpUpdate(4), 9);
+  EXPECT_EQ(cache.LookUpUpdate(6), 10);
+  EXPECT_EQ(cache.LookUpUpdate(5), 11);
+  EXPECT_EQ(cache.LookUpUpdate(2), 12);
   EXPECT_EQ(cache.LookUpUpdate(1), 3);
   EXPECT_EQ(cache.LookUpUpdate(3), 7);
   EXPECT_EQ(cache.LookUpUpdate(4), 9);
-  EXPECT_EQ(cache.LookUpUpdate(2), 10);
-  EXPECT_EQ(loader_calls, 10);
-  EXPECT_EQ(cache.GetCacheMissCount(), 10);
-  EXPECT_EQ(cache.GetAccessCount(), 14);
+  EXPECT_EQ(cache.LookUpUpdate(5), 11);
+  EXPECT_EQ(loader_calls, 12);
+  EXPECT_EQ(cache.GetCacheMissCount(), 12);
+  EXPECT_EQ(cache.GetAccessCount(), 17);
 }
 
-TEST(TwoQueuesTest, SmallCapacitiesKeepEachQueueUsable) {
+TEST(TwoQueuesTest, SmallCapacitiesRespectResidentLimit) {
   for (size_t capacity : {0, 1, 2}) {
     SCOPED_TRACE(capacity);
     cache::TwoQueues<int, int> cache(capacity, LoadPage);
@@ -1263,15 +1265,47 @@ TEST(TwoQueuesTest, SmallCapacitiesKeepEachQueueUsable) {
     EXPECT_EQ(cache.LookUpUpdate(2), 20);
     EXPECT_EQ(cache.LookUpUpdate(3), 30);
     EXPECT_EQ(cache.LookUpUpdate(1), 10);
-    EXPECT_EQ(cache.GetCacheMissCount(), 6);
+    EXPECT_EQ(cache.GetCacheMissCount(), capacity == 2 ? 6 : 7);
     EXPECT_EQ(cache.GetAccessCount(), 8);
   }
+}
+
+TEST(TwoQueuesTest, CapacityOneHundredCountsOnlyResidentPages) {
+  size_t loader_calls = 0;
+  cache::TwoQueues<int, int> cache(100, [&](const int& key) {
+    ++loader_calls;
+    return LoadPage(key);
+  });
+
+  // Fill IN, then move 86 keys through OUT into LRU. The resulting
+  // resident set consists of IN[86..99] and LRU[0..85].
+  for (int key = 0; key < 14; ++key) {
+    EXPECT_EQ(cache.LookUpUpdate(key), LoadPage(key));
+  }
+  for (int key = 0; key < 86; ++key) {
+    EXPECT_EQ(cache.LookUpUpdate(key + 14), LoadPage(key + 14));
+    EXPECT_EQ(cache.LookUpUpdate(key), LoadPage(key));
+  }
+  EXPECT_EQ(loader_calls, 186);
+
+  for (int key = 0; key < 100; ++key) {
+    EXPECT_EQ(cache.LookUpUpdate(key), LoadPage(key));
+  }
+  EXPECT_EQ(loader_calls, 186);
+  EXPECT_EQ(cache.GetCacheHitCount(), 100);
+
+  EXPECT_EQ(cache.LookUpUpdate(100), LoadPage(100));
+  // Adding key 100 moves key 86 to OUT. An OUT access is a miss.
+  EXPECT_EQ(cache.LookUpUpdate(86), LoadPage(86));
+  EXPECT_EQ(loader_calls, 188);
+  EXPECT_EQ(cache.GetCacheMissCount(), 188);
+  EXPECT_EQ(cache.GetAccessCount(), 288);
 }
 
 // === TwoQueues cache: corner case with 50 accesses ===
 TEST(TwoQueuesTest, FiftyAccessesWithChangingWorkingSet) {
   const std::array<int, 50> keys = {
-      // Fill LRU through OUT hits; IN and OUT each hold one page.
+      // Fill LRU through OUT hits; IN holds one page and OUT holds two keys.
       1,
       2,
       1,
@@ -1328,7 +1362,7 @@ TEST(TwoQueuesTest, FiftyAccessesWithChangingWorkingSet) {
       19,
   };
   // Cumulative misses after each block of ten accesses.
-  const std::array<size_t, 5> expected_misses = {7, 14, 21, 25, 31};
+  const std::array<size_t, 5> expected_misses = {7, 14, 20, 24, 30};
   size_t loader_calls = 0;
   auto loader = [&](const int& key) {
     ++loader_calls;
@@ -1353,7 +1387,7 @@ TEST(TwoQueuesTest,
      HundredTwentyAccessesWithQueueOverflowAndRepeatedPromotions) {
   // Each row is {key, loaded value version, cumulative misses}.
   const std::array<ExpectedAccess, 120> accesses = {{
-      // IN = 2, OUT = 6, LRU = 12; IN hits preserve FIFO order.
+      // IN = 2, OUT = 8, LRU = 18; IN hits preserve FIFO order.
       {1, 1, 1},
       {2, 2, 2},
       {1, 1, 2},
@@ -1374,7 +1408,7 @@ TEST(TwoQueuesTest,
       {3, 9, 14},
       {4, 10, 14},
       {5, 13, 14},
-      // Promote OUT keys until LRU is full, then refresh selected LRU pages.
+      // Promote OUT keys and refresh selected LRU pages.
       {9, 15, 15},
       {10, 16, 16},
       {7, 17, 17},
@@ -1395,7 +1429,7 @@ TEST(TwoQueuesTest,
       {11, 25, 26},
       {2, 5, 26},
       {4, 10, 26},
-      // Overflow LRU through repeated promotions and revisit its survivors.
+      // Continue promotions and revisit LRU survivors.
       {15, 27, 27},
       {16, 28, 28},
       {13, 29, 29},
@@ -1433,15 +1467,15 @@ TEST(TwoQueuesTest,
       {16, 34, 48},
       {21, 49, 49},
       {22, 50, 50},
-      {29, 51, 51},
-      {30, 52, 52},
-      {21, 49, 52},
-      {22, 50, 52},
+      {29, 47, 50},
+      {30, 48, 50},
+      {21, 49, 50},
+      {22, 50, 50},
       // Promote more OUT pages while refreshing a small LRU working set.
-      {31, 53, 53},
-      {32, 54, 54},
-      {29, 51, 54},
-      {30, 52, 54},
+      {31, 51, 51},
+      {32, 52, 52},
+      {29, 53, 53},
+      {30, 54, 54},
       {33, 55, 55},
       {34, 56, 56},
       {31, 57, 57},
@@ -1472,13 +1506,13 @@ TEST(TwoQueuesTest,
       {-3, 76, 76},
       {1, 6, 76},
       {3, 9, 76},
-      {29, 77, 77},
-      {30, 78, 78},
-      {31, 57, 78},
-      {32, 58, 78},
-      {33, 61, 78},
-      {34, 62, 78},
-      {35, 65, 78},
+      {29, 53, 76},
+      {30, 54, 76},
+      {31, 57, 76},
+      {32, 58, 76},
+      {33, 61, 76},
+      {34, 62, 76},
+      {35, 65, 76},
   }};
   int loader_calls = 0;
   auto loader = [&](const int&) {
@@ -1570,6 +1604,18 @@ TEST(TwoQueuesTest, SixtyMixedAccessesAcrossCapacities) {
   // Independently simulated outcomes: M = load, H = resident hit.
   // Each string corresponds to the capacity at the same index above.
   const std::array<std::string, 7> expected_outcomes = {
+      "MMMMMMMMMM"
+      "MMMMMMMMMM"
+      "MMMMMMMMMH"
+      "MMMMMMMMMM"
+      "HMMMMMMMMM"
+      "MMMMMMMMMM",
+      "MMMMMMMMMM"
+      "MMMMMMMMMM"
+      "MMMMMMMMMH"
+      "MMMMMMMMMM"
+      "HMMMMMMMMM"
+      "MMMMMMMMMM",
       "MMMMMMHMMM"
       "MMMMMMMMMM"
       "HMHHMMMHMH"
@@ -1585,27 +1631,15 @@ TEST(TwoQueuesTest, SixtyMixedAccessesAcrossCapacities) {
       "MMMMMMHMMM"
       "MMMMMMMMMM"
       "HMHHMMMHMH"
-      "MMMMMMMMMM"
-      "HMMMMMMHMM"
-      "MMMHMMMHMM",
-      "MMMMMMHMMM"
-      "MMMMMMMMMM"
-      "HMHHMMMHMH"
-      "MMMMMMMMMM"
-      "HMMMMMMHMM"
-      "MMMHMMMHMM",
-      "MMMMMMHMMM"
-      "MMMMMMMMMM"
-      "HMHHMMMHMH"
-      "MMMMMMMMMM"
-      "HMMMMMMHMM"
-      "MMMHMMMHMM",
-      "MMMMMMHMMM"
-      "MMMMMMMMMM"
-      "MMMHMMMHMH"
       "MMMMMMMMMM"
       "HMMMHMHHHM"
-      "MMMHMMMHHM",
+      "MMMHMMMHMM",
+      "MMMMMMHMMM"
+      "MMMMMMMMMM"
+      "MMMHMHHHHH"
+      "MMMMMMMMMM"
+      "HMMMHMHHMH"
+      "HMHHMMMHHM",
       "MMHMMMMMMH"
       "MMMHMHMHMH"
       "HHHHHMHHHH"

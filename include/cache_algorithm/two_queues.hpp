@@ -18,13 +18,27 @@ class TwoQueues final : public Cache<Key, Tp> {
  public:
   explicit TwoQueues(size_t cache_cap, loader<Key, Tp> slow_get_page)
       : Cache<Key, Tp>(std::move(slow_get_page)),
-        cache_cap_(cache_cap),
+        cache_cap_(std::max<size_t>(1, cache_cap)),
         in_cap_(std::max<size_t>(1, cache_cap * kInCoeff)),
         out_cap_(std::max<size_t>(1, cache_cap * kOutCoeff)),
-        lru_cap_(std::max<size_t>(1, cache_cap * kLruCoeff)) {}
+        lru_cap_(cache_cap_ - in_cap_) {}
 
   Tp LookUpUpdate(const Key& key) override {
     ++(this->access_count_);
+
+    if (cache_cap_ == 1) {
+      auto only_page = data_base_.find(key);
+      if (only_page != data_base_.end()) {
+        return only_page->second.list_it->val;
+      }
+      ++(this->misses_count_);
+      Tp value = this->slow_get_page_(key);
+      in_cache_.clear();
+      data_base_.clear();
+      auto pos = in_cache_.emplace(in_cache_.begin(), CacheNode{key, value});
+      data_base_[key] = {CacheType::kIn, pos, {}};
+      return value;
+    }
 
     auto hash_it = data_base_.find(key);
     if (hash_it == data_base_.end()) {
@@ -63,9 +77,8 @@ class TwoQueues final : public Cache<Key, Tp> {
   }
 
  private:
-  static constexpr double kInCoeff = 0.1;
-  static constexpr double kOutCoeff = 0.3;
-  static constexpr double kLruCoeff = 0.6;
+  static constexpr double kInCoeff = 1.0/7.0;
+  static constexpr double kOutCoeff = 3.0/7.0;
 
   enum class CacheType { kIn, kOut, kLru };
 
